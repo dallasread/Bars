@@ -90,12 +90,14 @@ Blocks.definePrototype({
             _.context = _.context.getContext(_.args);
 
             if (keys.length) {
-                for (i = _.nodes.length; i < keys.length; i++) {
-                    _.createFragment(keys[i]);
+                // TODO: This should be smarter.
+
+                for (var i = _.nodes.length - 1; i >= 0; i--) {
+                    _.nodes[i].remove();
                 }
 
-                for (i = keys.length; i < _.nodes.length; i++) {
-                    _.nodes[i].remove();
+                for (var i = 0; i < keys.length; i++) {
+                    _.createFragment(keys[i]);
                 }
 
                 return true;
@@ -115,12 +117,14 @@ Blocks.definePrototype({
             _.context = _.context.getContext(_.args);
 
             if (keys.length) {
-                for (i = _.nodes.length; i < keys.length; i++) {
-                    _.createFragment(keys[i]);
+                // TODO: This should be smarter.
+
+                for (var i = _.nodes.length - 1; i >= 0; i--) {
+                    _.nodes[i].remove();
                 }
 
-                for (i = keys.length; i < _.nodes.length; i++) {
-                    _.nodes[i].remove();
+                for (var i = 0; i < keys.length; i++) {
+                    _.createFragment(keys[i]);
                 }
 
                 return true;
@@ -273,16 +277,12 @@ BarsNode.definePrototype({
         if (!parent) return;
         if (_.$el.parentElement) return;
 
-        if (parent instanceof Element && _.isDOM) {
-            parent.appendChild(_.$el);
-        } else if (_.isDOM) {
-            var prev = _.prevDom;
+        var prev = _.prevDom;
 
-            if (prev) {
-                parent.insertBefore(_.$el, prev.$el.nextSibling);
-            } else {
-                parent.appendChild(_.$el);
-            }
+        if (prev) {
+            parent.insertBefore(_.$el, prev.$el.nextSibling);
+        } else {
+            parent.appendChild(_.$el);
         }
     },
 
@@ -498,6 +498,7 @@ Nodes.BLOCK.definePrototype({
             for (i = 0; i < _.nodes.length; i++) {
                 _.nodes[i]._elementRemove();
             }
+
             if (!_.alternate) {
                 _.alternate = Nodes.FRAG.create(_.bars, _.altFrag);
                 _.alternate.parent = _;

@@ -9,62 +9,64 @@
         <script type="text/javascript">
             var bars = window.Bars.create();
 
-            var template = '<span>hello, {{#if @name}}<h2>{{@name}}</h2>{{else}}Person{{/if}}.</span>';
-                template = '{{?helper .}}{{{?helper .}}}{{>partial .}}{{! comment }}{{!-- comment --}}{{#block .}}{{else}}{{/block}}';
+            window.cats = [{
+                name: 'A'
+            }, {
+                name: 'B'
+            }, {
+                name: 'C'
+            }, {
+                name: 'D'
+            }];
 
-                template = 'BEFORE :: \
-                                <input value="{{name}}" onkeyup="javascript:a.name=this.value;window.c.update(a);">\
-                                <span class="{{name}} {{name}}">{{#if name}}\
-                                NAME={{name}}\
-                                (helper: {{?helper name name}})\
-                            {{else}}\
-                                noname\
-                            {{/if}}</span> :: ({{>partial}})',
-                // partial = 'AFTER (PARTIAL - {{name}})',
-                // template = '<div class="{{name}}">--<p>Hi, {{name}}!</p><input>--</div>';
+            // TEST #2
+            var template = '<ul>\
+                {{#each cats}}\
+                    <li>{{name}}</li>\
+                {{/each}}\
+            </ul>';
 
-            window.joey = {
-                name: 'Joey'
-            };
-
-            window.cats = [
-                {
-                    name: undefined
-                },
-                {
-                    name: false
-                },
-                window.joey,
-                {
-                    name: NaN
-                }
-            ];
-
-            bars.registerHelper('helper', function(a) {
-                return 'HELPER';
-            });
-
-            bars.registerPartial('partial', 'PARTIAL');
-
-            bars.registerBlock('block', function (a) {
-                return 'BLOCK';
-            });
-
-            window.a = {name:'My Name'};
+            var data = { cats: window.cats };
             window.b = bars.compile(template);
             window.c = window.b.render();
             window.c.appendTo(document.body);
-            window.c.update(a);
+            window.c.update(data);
 
+            delete window.cats[1];
+            delete window.cats[3];
+
+            window.c.update(data);
+            console.log('SHOULD SHOW: A C')
+
+            // TEST #1
+            // bars.registerHelper('helper', function(a) {
+            //     return 'HELPER';
+            // });
+
+            // bars.registerPartial('partial', 'PARTIAL');
+
+            // bars.registerBlock('block', function (a) {
+            //     return 'BLOCK';
+            // });
+            // var template = 'BEFORE :: \
+            //     <input value="{{name}}" onkeyup="javascript:a.name=this.value;window.c.update(a);">\
+            //     <span class="{{name}} {{name}}">{{#if name}}\
+            //     NAME={{name}}\
+            //     (helper: {{?helper name name}})\
+            // {{else}}\
+            //     noname\
+            // {{/if}}</span> :: ({{>partial}})';
+            // window.a = {name:'My Name'};
+            // window.b = bars.compile(template);
+            // window.c = window.b.render();
+            // window.c.appendTo(document.body);
+            // window.c.update(window.a);
             // setInterval(function() {
             //     var n = Math.random();
-
             //     window.c.update({
             //         name: n < 0.8 ? n : null
             //     });
             // }, 1000);
-
-            // console.log(window.c)
         </script>
     </body>
 </html>
