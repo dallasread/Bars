@@ -620,7 +620,7 @@ Nodes.FRAG.definePrototype({
             }
         }
 
-        return value;
+        return typeof value === 'undefined' ? '' : value;
     },
     getContext: function getContext(basepath) {
         var _ = this;
