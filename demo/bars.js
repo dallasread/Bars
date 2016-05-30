@@ -395,6 +395,33 @@ Nodes.TAG.definePrototype({
 
 
 /**
+ * [HTMLNode description]
+ * @param {[type]} bars    [description]
+ * @param {[type]} struct  [description]
+ */
+Nodes.HTML = BarsNode.generate(function HTMLNode(bars, struct) {
+    var _ = this;
+
+    _.supercreate(bars, struct);
+
+    _.defineProperties({
+        $el: document.createElement('div'),
+        path: struct.args
+    });
+});
+
+Nodes.HTML.definePrototype({
+    isDOM: true,
+
+    _update: function _update(context) {
+        var _ = this;
+
+        _.$el.innerHTML = context(_.path);
+    }
+});
+
+
+/**
  * [AttrNode description]
  * @param {[type]} bars    [description]
  * @param {[type]} struct  [description]
@@ -1411,7 +1438,7 @@ function parseBarsInsertHTML(mode, tree, index, length, buffer, indent) {
 
     var ch,
         token = {
-            type: 'FRAG',
+            type: 'HTML',
             args: ''
         }, endChars = 0;
 

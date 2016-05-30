@@ -10,12 +10,12 @@
             var bars = window.Bars.create();
 
             // TEST #5
-            var template = '{{a}} : {{b}} : {{c}} : {{d}}';
-            window.b = bars.compile(template);
-            window.c = window.b.render();
-            window.c.appendTo(document.body);
-            window.c.update({ a: undefined, b: null, c: void(0), d: 0 });
-            console.log('SHOULD SHOW: : : : 0')
+            // var template = '{{a}} : {{b}} : {{c}} : {{d}}';
+            // window.b = bars.compile(template);
+            // window.c = window.b.render();
+            // window.c.appendTo(document.body);
+            // window.c.update({ a: undefined, b: null, c: void(0), d: 0 });
+            // console.log('SHOULD SHOW: : : : 0')
 
             // TEST #4
             // var template = '{{#each a}}{{#each b}}{{.}}{{/each}}{{/each}}';
@@ -26,12 +26,12 @@
             // console.log('SHOULD SHOW: abcabcabcabc')
 
             // TEST #3 (DOESN'T WORK)
-            // var template = '-{{{html}}} |||| {{html}}-';
-            // window.b = bars.compile(template);
-            // window.c = window.b.render();
-            // window.c.appendTo(document.body);
-            // window.c.update({ html: '<h1>This is an H1 tag!</h1>' });
-            // console.log('SHOULD SHOW HTML')
+            var template = '{{{a}}} - ';
+            window.b = bars.compile(template);
+            window.c = window.b.render();
+            window.c.appendTo(document.body);
+            window.c.update({ a: '<h1>This is an H1 tag!</h1>' });
+            console.log('SHOULD SHOW HTML')
 
             // TEST #2
             // window.cats = [{
