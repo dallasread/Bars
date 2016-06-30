@@ -590,8 +590,6 @@ Nodes.PARTIAL.definePrototype({
 
         context = context.getContext('');
 
-        // console.log(context(''))
-
         var newData = {},
             path;
 
@@ -722,6 +720,7 @@ Nodes.FRAG.definePrototype({
 
         var newSplitpath;
 
+        if (path[0] === '~') path = path.replace(/^~/, '/');
         if (path[0] === '/') {
             newSplitpath = path.split('/');
         } else {
