@@ -481,6 +481,7 @@ Nodes.BLOCK = BarsNode.generate(function BlockNode(bars, struct) {
     var _ = this;
 
     _.supercreate(bars, struct);
+    _.path = _.args;
 });
 
 Nodes.BLOCK.definePrototype({
@@ -491,7 +492,6 @@ Nodes.BLOCK.definePrototype({
             frag = Nodes.FRAG.create(_.bars, _.conFrag);
 
         frag.setPath(path);
-
         _.appendChild(frag);
     },
 
@@ -561,6 +561,17 @@ Nodes.PARTIAL = BarsNode.generate(function PartialNode(bars, struct) {
     _.supercreate(bars, struct);
 });
 
+function parentPath(_) {
+    var parent = _,
+        path = [];
+
+    while (parent = parent.parent) {
+        if (parent.path) path.unshift(parent.path);
+    }
+
+    return path.join('/');
+}
+
 Nodes.PARTIAL.definePrototype({
     _update: function _update(context) {
         var _ = this;
@@ -571,13 +582,29 @@ Nodes.PARTIAL.definePrototype({
             if (partial && typeof partial === 'object') {
                 _.partial = Nodes.FRAG.create(_.bars, partial.struct);
                 _.partial.parent = _;
-                _.partial.setPath(_.args);
+                _.partial.setPath('');
             } else {
                 throw new Error('Partial not found: ' + _.name);
             }
         }
 
-        _.partial.update(context);
+        context = context.getContext('');
+
+        var newData = {};
+
+        for (var key in _.args) {
+            newData[key] = context(parentPath(_) + '/' + _.args[key]);
+        }
+
+        _.partial.update(newData);
+    },
+
+    _elementRemove: function _elementRemove() {
+        var _ = this;
+
+        if (_.partial) {
+            _.partial._elementRemove();
+        }
     }
 });
 
@@ -632,10 +659,9 @@ Nodes.FRAG.definePrototype({
 
         _.$parent = null;
     },
-    getValue: function getValue(splitPath) {
-        var _ = this;
 
-        var value = _.data;
+    getValue: function getValue(value, splitPath) {
+        var _ = this;
 
         for (var i = 0; i < splitPath.length; i++) {
             if (splitPath[i] === '@key' || splitPath[i] === '@index') {
@@ -643,21 +669,32 @@ Nodes.FRAG.definePrototype({
             } else if (value !== null && value !== void(0)) {
                 value = value[splitPath[i]];
             } else {
-                return;
+                value = undefined;
             }
         }
 
         return typeof value === 'undefined' ? '' : value;
     },
-    getContext: function getContext(basepath) {
+
+    getContext: function getContext(basepath, obj) {
         var _ = this;
 
         function context(path) {
-            return _.getValue(_.resolve(basepath, path));
+            if (obj) {
+                var newObj = {};
+
+                for (var key in obj) {
+                    newObj[key] = _.getValue(_.data, _.resolve(basepath, obj[key]));
+                }
+
+                return _.resolveObj(newObj, path) || '';
+            }
+
+            return _.getValue(_.data, _.resolve(basepath, path));
         }
 
-        context.getContext = function getContext(path) {
-            return _.getContext(_.resolve(basepath, path).join('/'));
+        context.getContext = function getContext(path, obj) {
+            return _.getContext(_.resolve(basepath, path).join('/'), obj);
         };
 
         return context;
@@ -674,6 +711,8 @@ Nodes.FRAG.definePrototype({
     },
 
     resolve: function resolve(basepath, path) {
+        if (!path) return [];
+
         var newSplitpath;
 
         if (path[0] === '/') {
@@ -681,7 +720,6 @@ Nodes.FRAG.definePrototype({
         } else {
             newSplitpath = basepath.split('/').concat(path.split('/'));
         }
-
 
         for (var i = 0; i < newSplitpath.length; i++) {
             if (newSplitpath[i] === '.' || newSplitpath[i] === '') {
@@ -694,7 +732,19 @@ Nodes.FRAG.definePrototype({
         }
 
         return newSplitpath;
-    }
+    },
+
+    resolveObj: function resolveObj(obj, path) {
+        var _ = this,
+            splat = path.split('/');
+
+        for (var i = 0; i < splat.length; i++) {
+            obj = obj[splat[i]];
+            if (!obj) return;
+        }
+
+        return obj;
+    },
 });
 
 module.exports = Nodes.FRAG;
@@ -707,6 +757,7 @@ var Helpers = Generator.generate(function Helpers() {});
 Helpers.definePrototype({
     log: function log() {
         console.log.apply(console, arguments);
+        return null;
     }
 });
 
@@ -970,7 +1021,7 @@ function throwError(buffer, index, message) {
         }
     }
 
-    throw new SyntaxError(message + ' at ' + lines + ':' + columns);
+    throw new SyntaxError(message + ' at ' + lines + ':' + columns + ' [' + buffer.slice(index - 30, index + 30).replace(/\n/g, '') + ']');
 }
 
 function parseError(mode, tree, index, length, buffer, indent) {
@@ -1489,8 +1540,9 @@ function parseBarsPartial(mode, tree, index, length, buffer, indent) {
         token = {
             type: 'PARTIAL',
             name: '',
-            args: ''
-        }, endChars = 0;
+            args: {}
+        }, endChars = 0,
+        args = '';
 
     // move past {{>
     index += 3;
@@ -1531,10 +1583,15 @@ function parseBarsPartial(mode, tree, index, length, buffer, indent) {
             }
         }
 
-        token.args += buffer[index];
+        args += buffer[index];
     }
 
-    token.args = token.args.trim();
+    args = args.trim().split(/\s+/);
+
+    for (var i = args.length - 1; i >= 0; i--) {
+        var arg = args[i].split('=')
+        token.args[arg[0]] = arg[1];
+    }
 
     tree.push(token);
 
