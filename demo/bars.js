@@ -414,9 +414,20 @@ Nodes.HTML.definePrototype({
     isDOM: true,
 
     _update: function _update(context) {
-        var _ = this;
+        var _ = this,
+            $parent = _.parentTag.$el || _.parentTag.$parent;
 
-        _.$el.innerHTML = context(_.path);
+        $parent.innerHTML = context(_.path);
+    },
+
+    _elementAppendTo: function _elementAppendTo() {},
+    _elementRemove: function _elementRemove() {
+        var _ = this,
+            $parent = _.parentTag.$el || _.parentTag.$parent;
+
+        while ($parent.firstChild) {
+            $parent.removeChild($parent.firstChild);
+        }
     }
 });
 
@@ -596,6 +607,7 @@ Nodes.PARTIAL.definePrototype({
         for (var key in _.args) {
             path = _.args[key];
 
+            if (!path) continue;
             if (path[0] !== '/') path = parentPath(_) + '/' + path;
 
             newData[key] = context(path);
