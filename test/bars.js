@@ -109,37 +109,6 @@ Blocks.definePrototype({
             if (keys.length) {
                 // TODO: This should be smarter.
 
-<<<<<<< HEAD
-                for (var i = _.nodes.length - 1; i >= 0; i--) {
-                    _.nodes[i].remove();
-                }
-
-                for (var i = 0; i < keys.length; i++) {
-                    _.createFragment(keys[i]);
-                }
-
-                return true;
-            }
-        }
-
-        return false;
-    },
-
-    reverse: function reverseBlock(data) {
-        var _ = this,
-            i;
-
-        if (data && typeof data === 'object') {
-            var keys = Object.keys(data).reverse();
-
-            _.context = _.context.getContext(_.args);
-
-            if (keys.length) {
-                // TODO: This should be smarter.
-
-                for (var i = _.nodes.length - 1; i >= 0; i--) {
-                    _.nodes[i].remove();
-=======
                 // remove extra nodes
                 for (i = _.nodes.length - 1; i >= keys.length; i--) {
                     _.nodes[i].remove();
@@ -158,11 +127,6 @@ Blocks.definePrototype({
 
                     _.nodes[i].context.path = newPath;
                     _.nodes[i].context.data = data[keys[i]];
->>>>>>> Mike96Angelo/master
-                }
-
-                for (var i = 0; i < keys.length; i++) {
-                    _.createFragment(keys[i]);
                 }
 
                 return true;
@@ -425,16 +389,6 @@ function parseBarsBlock(mode, code, tokens, flags, scope, parseMode) {
 
     block.expression = args[0];
 
-<<<<<<< HEAD
-        var prev = _.prevDom;
-
-        if (prev) {
-            parent.insertBefore(_.$el, prev.$el.nextSibling);
-        } else {
-            parent.appendChild(_.$el);
-        }
-    },
-=======
     if (args.length > 1) {
         throw code.makeError(
             args[1].range[0], args[1].range[1],
@@ -455,7 +409,6 @@ function parseBarsBlock(mode, code, tokens, flags, scope, parseMode) {
             '.'
         );
     }
->>>>>>> Mike96Angelo/master
 
     if (!block.expression) {
         throw code.makeError(
@@ -552,56 +505,7 @@ function parseBarsComment(mode, code, tokens, flags, scope, parseMode) {
                     index += 4; /* for --}} */
                     code.index = index;
 
-<<<<<<< HEAD
-/**
- * [HTMLNode description]
- * @param {[type]} bars    [description]
- * @param {[type]} struct  [description]
- */
-Nodes.HTML = BarsNode.generate(function HTMLNode(bars, struct) {
-    var _ = this;
-
-    _.supercreate(bars, struct);
-
-    _.defineProperties({
-        $el: document.createElement('div'),
-        path: struct.args
-    });
-});
-
-Nodes.HTML.definePrototype({
-    isDOM: true,
-
-    _update: function _update(context) {
-        var _ = this,
-            $parent = _.parentTag.$el || _.parentTag.$parent;
-
-        $parent.innerHTML = context(_.path);
-    },
-
-    _elementAppendTo: function _elementAppendTo() {},
-    _elementRemove: function _elementRemove() {
-        var _ = this,
-            $parent = _.parentTag.$el || _.parentTag.$parent;
-
-        while ($parent.firstChild) {
-            $parent.removeChild($parent.firstChild);
-        }
-    }
-});
-
-
-/**
- * [AttrNode description]
- * @param {[type]} bars    [description]
- * @param {[type]} struct  [description]
- */
-Nodes.ATTR = BarsNode.generate(function AttrNode(bars, struct) {
-    var _ = this,
-        nodes = struct.nodes || ARRAY;
-=======
                     parseMode.close();
->>>>>>> Mike96Angelo/master
 
                     if (flags.keepComments) {
                         // make a CommentToken and return that.
@@ -630,15 +534,9 @@ Nodes.ATTR = BarsNode.generate(function AttrNode(bars, struct) {
 
                 parseMode.close();
 
-<<<<<<< HEAD
-    _.supercreate(bars, struct);
-    _.path = _.args;
-});
-=======
                 if (flags.keepComments) {
                     // make a CommentToken and return that.
                 }
->>>>>>> Mike96Angelo/master
 
                 return true;
             }
@@ -650,16 +548,10 @@ Nodes.ATTR = BarsNode.generate(function AttrNode(bars, struct) {
         );
     }
 
-<<<<<<< HEAD
-        frag.setPath(path);
-        _.appendChild(frag);
-    },
-=======
     return null;
 }
 
 module.exports = parseBarsComment;
->>>>>>> Mike96Angelo/master
 
 },{}],8:[function(require,module,exports){
 var InsertToken = require('../tokens')
@@ -700,27 +592,12 @@ function parseBarsInsert(mode, code, tokens, flags, scope, parseMode) {
         );
     }
 
-<<<<<<< HEAD
-            if (_.alternate) {
-                _.alternate._elementRemove();
-            }
-        } else {
-            for (i = 0; i < _.nodes.length; i++) {
-                _.nodes[i]._elementRemove();
-            }
-
-            if (!_.alternate) {
-                _.alternate = Nodes.FRAG.create(_.bars, _.altFrag);
-                _.alternate.parent = _;
-            }
-=======
     if (!insert.expression) {
         throw code.makeError(
             code.index - 2, code.index - 1,
             'Missing <expression>.'
         );
     }
->>>>>>> Mike96Angelo/master
 
     parseMode.close();
     return insert;
@@ -759,26 +636,9 @@ module.exports = parseBarsMarkupEnd;
 },{"../tokens":28}],10:[function(require,module,exports){
 //parseBarsMarkup
 
-<<<<<<< HEAD
-function parentPath(_) {
-    var parent = _,
-        path = [];
-
-    while (parent = parent.parent) {
-        if (parent.path) path.unshift(parent.path);
-    }
-
-    return path.join('/');
-}
-
-Nodes.PARTIAL.definePrototype({
-    _update: function _update(context) {
-        var _ = this;
-=======
 function parseBarsMarkup(mode, code, tokens, flags, scope, parseMode) {
     var index = code.index,
         length = code.length;
->>>>>>> Mike96Angelo/master
 
     if ( /* {{ */
         code.codePointAt(index) === 0x007b &&
@@ -788,18 +648,9 @@ function parseBarsMarkup(mode, code, tokens, flags, scope, parseMode) {
         flags.markup.mode = mode;
         parseMode('BARS', tokens, flags);
 
-<<<<<<< HEAD
-            if (partial && typeof partial === 'object') {
-                _.partial = Nodes.FRAG.create(_.bars, partial.struct);
-                _.partial.parent = _;
-                _.partial.setPath('');
-            } else {
-                throw new Error('Partial not found: ' + _.name);
-=======
         if (code.index > index) {
             if (flags.markup && flags.markup.closeParseScope) {
                 parseMode.close();
->>>>>>> Mike96Angelo/master
             }
             delete flags.markup;
             if (scope.token) {
@@ -808,33 +659,7 @@ function parseBarsMarkup(mode, code, tokens, flags, scope, parseMode) {
             return true;
         }
 
-<<<<<<< HEAD
-        context = context.getContext('');
-
-        var newData = {},
-            path;
-
-        for (var key in _.args) {
-            path = _.args[key];
-
-            if (!path) continue;
-            if (path[0] !== '/') path = parentPath(_) + '/' + path;
-
-            newData[key] = context(path);
-        }
-
-        _.partial.update(newData);
-    },
-
-    _elementRemove: function _elementRemove() {
-        var _ = this;
-
-        if (_.partial) {
-            _.partial._elementRemove();
-        }
-=======
         delete flags.markup;
->>>>>>> Mike96Angelo/master
     }
 
     return null;
@@ -881,47 +706,6 @@ function parseBarsPartial(mode, code, tokens, flags, scope, parseMode) {
         code.index = index;
 
 
-<<<<<<< HEAD
-        _.$parent = null;
-    },
-
-    getValue: function getValue(value, splitPath) {
-        var _ = this;
-
-        for (var i = 0; i < splitPath.length; i++) {
-            if (splitPath[i] === '@key' || splitPath[i] === '@index') {
-                value = splitPath[i - 1];
-            } else if (value !== null && value !== void(0)) {
-                value = value[splitPath[i]];
-            } else {
-                value = undefined;
-            }
-        }
-
-        return typeof value === 'undefined' ? '' : value;
-    },
-
-    getContext: function getContext(basepath, obj) {
-        var _ = this;
-
-        function context(path) {
-            if (obj) {
-                var newObj = {};
-
-                for (var key in obj) {
-                    newObj[key] = _.getValue(_.data, _.resolve(basepath, obj[key]));
-                }
-
-                return _.resolveObj(newObj, path) || '';
-            }
-
-            return _.getValue(_.data, _.resolve(basepath, path));
-        }
-
-        context.getContext = function getContext(path, obj) {
-            return _.getContext(_.resolve(basepath, path).join('/'), obj);
-        };
-=======
         var args = [];
 
         scope.push(partial);
@@ -954,7 +738,6 @@ function parseBarsPartial(mode, code, tokens, flags, scope, parseMode) {
         //     code.index -= 2;
         //     throw code.makeError('Missing <arg>.');
         // }
->>>>>>> Mike96Angelo/master
 
         parseMode.close();
         return partial;
@@ -965,45 +748,6 @@ function parseBarsPartial(mode, code, tokens, flags, scope, parseMode) {
 
 module.exports = parseBarsPartial;
 
-<<<<<<< HEAD
-    resolve: function resolve(basepath, path) {
-        if (!path) return [];
-
-        var newSplitpath;
-
-        if (path[0] === '~') path = path.replace(/^~/, '/');
-        if (path[0] === '/') {
-            newSplitpath = path.split('/');
-        } else {
-            newSplitpath = basepath.split('/').concat(path.split('/'));
-        }
-
-        for (var i = 0; i < newSplitpath.length; i++) {
-            if (newSplitpath[i] === '.' || newSplitpath[i] === '') {
-                newSplitpath.splice(i, 1);
-                i--;
-            } else if (newSplitpath[i] === '..') {
-                newSplitpath.splice(i - 1, 2);
-                i -= 2;
-            }
-        }
-
-        return newSplitpath;
-    },
-
-    resolveObj: function resolveObj(obj, path) {
-        var _ = this,
-            splat = path.split('/');
-
-        for (var i = 0; i < splat.length; i++) {
-            obj = obj[splat[i]];
-            if (!obj) return;
-        }
-
-        return obj;
-    },
-});
-=======
 },{"../tokens":28,"../utils":40}],12:[function(require,module,exports){
 var Token = require('../tokens'),
     LiteralToken = Token.tokens.literal,
@@ -1024,7 +768,6 @@ function STRING(mode, code, tokens, flags, scope, parseMode) {
 
     text = new LiteralToken(code);
     text.value = '';
->>>>>>> Mike96Angelo/master
 
     for (; index < length; index++) {
         ch = code.codePointAt(index);
@@ -1042,14 +785,7 @@ function STRING(mode, code, tokens, flags, scope, parseMode) {
             break;
         }
 
-<<<<<<< HEAD
-Helpers.definePrototype({
-    log: function log() {
-        console.log.apply(console, arguments);
-        return null;
-=======
         text.value += code.charAt(index);
->>>>>>> Mike96Angelo/master
     }
 
     if (index > code.index) {
@@ -1189,11 +925,7 @@ function BOOLEAN(mode, code, tokens, flags, scope, parseMode) {
         parseMode.close();
     }
 
-<<<<<<< HEAD
-    throw new SyntaxError(message + ' at ' + lines + ':' + columns + ' [' + buffer.slice(index - 30, index + 30).replace(/\n/g, '') + ']');
-=======
     return bool;
->>>>>>> Mike96Angelo/master
 }
 
 function NULL(mode, code, tokens, flags, scope, parseMode) {
@@ -4094,22 +3826,6 @@ Context.definePrototype({
 
             if (path[0] === '~' && fragment.fragment) {
 
-<<<<<<< HEAD
-    var ch,
-        token = {
-            type: 'HTML',
-            args: ''
-        }, endChars = 0;
-
-    // move past {{{
-    index += 3;
-    loop: for (; index < length; index++) {
-        ch = buffer.codePointAt(index);
-
-        if (ch === 125 /*'}'*/) {
-            endChars++;
-            index++;
-=======
                 while (fragment.fragment) {
                     fragment = fragment.fragment;
                 }
@@ -4120,7 +3836,6 @@ Context.definePrototype({
                 .fragment
                 .fragment) {
                 _.context = fragment.fragment.context;
->>>>>>> Mike96Angelo/master
 
                 while (path[0] === '..' && _.context.context) {
 
@@ -4145,19 +3860,9 @@ Context.definePrototype({
             _.context = _.fragment.fragment.context;
         }
 
-<<<<<<< HEAD
-    var ch,
-        token = {
-            type: 'PARTIAL',
-            name: '',
-            args: {}
-        }, endChars = 0,
-        args = '';
-=======
         if (path[0] === '~' && _.context) {
             return _.context.lookup(path);
         }
->>>>>>> Mike96Angelo/master
 
         if (path[0] === '..' && _.context) {
             return _.context.lookup(
@@ -4195,31 +3900,10 @@ Context.definePrototype({
         }
         // console.log('lookup:', value)
 
-<<<<<<< HEAD
-        args += buffer[index];
-=======
         return value;
->>>>>>> Mike96Angelo/master
     }
 });
 
-<<<<<<< HEAD
-    args = args.trim().split(/\s+/);
-
-    for (var i = args.length - 1; i >= 0; i--) {
-        var arg = args[i].split('=')
-        token.args[arg[0]] = arg[1];
-    }
-
-    tree.push(token);
-
-    return index;
-}
-
-function parseBarsHelper(mode, tree, index, length, buffer, indent) {
-    if (buffer.codePointAt(index + 1) !== 123 /*'{'*/) {
-        return null;
-=======
 module.exports = Context;
 
 },{"./utils":47,"generate-js":55}],45:[function(require,module,exports){
@@ -4273,7 +3957,6 @@ function execute(syntaxTree, transforms, context) {
         }
         // console.log('<<<<', result)
         return result;
->>>>>>> Mike96Angelo/master
     }
 
     if (syntaxTree) {

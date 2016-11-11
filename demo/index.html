@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+<<<<<<< HEAD
         <title></title>
     </head>
     <body>
@@ -138,6 +139,71 @@
             //         name: n < 0.8 ? n : null
             //     });
             // }, 1000);
+=======
+        <title>Bars Demo</title>
+        <script id="bars-template-title" type="text/x-handlebars-template">
+            <span>{{@upperCase(title)}}</span>
+        </script>
+        <script id="bars-template" type="text/x-handlebars-template">
+            <ul>
+            {{#each @sort(persons, 'name')}}
+               <li>{{@number(@index) + 1}} - {{name}}</li>
+            {{/each}}
+            </ul>
+
+            {{#if x < 5}}
+               <span>x is less then 5</span>
+            {{else if x > 5}}
+                <span>x is greater then 5</span>
+            {{else}}
+               <span>x is equal to 5</span>
+            {{/if}}
+
+            <br>
+            <br>
+
+            {{>title}}
+
+        </script>
+        <script src="bars.js"></script>
+    </head>
+    <body>
+        <div id="bars-output"></div>
+        <script type="text/javascript">
+            var bars = new window.Bars(),
+                template = document.getElementById('bars-template').innerHTML;
+                templateTitle = document.getElementById('bars-template-title').innerHTML;
+
+            window.barsData = {
+               persons: [
+                  { name: 'John' },
+                  { name: 'Jane' },
+                  { name: 'Jim' },
+               ],
+               x: 2,
+               title: 'The Cat in the Hat'
+            };
+
+            bars.registerPartial('title', templateTitle);
+            bars.registerTransform('sbl', function (arr) {
+                return arr.sort(function (a,b){
+                    return a.name.length - b.name.length;
+                });
+            });
+
+            preCompiled = [0,"0.4.0","DOM",[1,[[3,"ul",[],0,[[5,"each",[10,"sort",[[9,["persons"]],[8,"length"]]],null,[1,[[3,"li",[],0,[[6,[11,"+",[[10,"number",[[9,["@","index"]]]],[8,1]]]],[2," - "],[6,[9,[]]],[3,"input",[[4,"type",[[2,"text"]],0]],0,[],0]],1]],1],null]],1],[5,"if",[11,"<",[[9,["x"]],[8,5]]],null,[1,[[3,"span",[],0,[[2,"x is less then 5"]],0]],1],[5,"if",[11,">",[[9,["x"]],[8,5]]],null,[1,[[3,"span",[],0,[[2,"x is greater then 5"]],0]],0],[1,[[3,"span",[],0,[[2,"x is equal to 5"]],0]],0]]],[3,"br",[],0,[],0],[3,"br",[],0,[],0],[7,"title",null,null,null]],1]];
+
+            // window.domFrag = bars.compile(template).render();
+            window.domFrag = bars.build(preCompiled).render();
+            window.domFrag.appendTo(document.getElementById('bars-output'));
+            window.domFrag.update(barsData);
+
+            /*
+             * now open you Inspector
+             * and try changing barsData
+             * and updating the domFrag
+             */
+>>>>>>> Mike96Angelo/master
         </script>
     </body>
 </html>

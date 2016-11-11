@@ -1,11 +1,94 @@
+<<<<<<< HEAD
 # Pre-release v0.1.17
+=======
+# Bars
+
+[![GitHub release](https://img.shields.io/github/release/Mike96angelo/Bars.svg?maxAge=21600)](https://github.com/Mike96Angelo/Bars/releases)
+[![npm version](https://img.shields.io/npm/v/bars.svg?maxAge=21600)](https://www.npmjs.com/package/bars)
+[![npm downloads](https://img.shields.io/npm/dm/bars.svg?maxAge=604800)](https://npm-stat.com/charts.html?package=bars&from=2015-08-13)
+[![npm downloads](https://img.shields.io/npm/dt/bars.svg?maxAge=604800)](https://npm-stat.com/charts.html?package=bars&from=2015-08-13)
+
+Bars is a lightweight high performance HTML aware templating engine.  Bars emits DOM rather than DOM-strings, this means the DOM state is preserved even if data updates happen.
+
+| Library           |   Size    | Runtime Size | Emits       |
+|:------------------|----------:|-------------:|:------------|
+| mustache.min.js   |   10 KB   |      10 KB   | DOM-strings |
+| **bars.min.js**   | **53 KB** |    **15 KB** | **DOM**     |
+| handlebars.min.js |   73 KB   |      14 KB   | DOM-strings |
+| react.min.js      |  149 KB   |       N/A    | DOM         |
+| react-with-addons.min.js |  160 KB|   N/A    | DOM         |
+| ember.min.js      |  419 KB   |     173 KB   | DOM         |
+
+
+* [Try Bars](https://jsfiddle.net/bba4kk3d/2/).
+* [Benchmark](http://jsfiddle.net/yE9Z9/92/).
+
+### Install:
+```
+$ npm install bars
+```
+
+# What Bars Looks Like
+
+### Bars:
+```handlebars
+<ul>
+{{#each persons}}
+   <li>{{@number(@index) + 1}} - {{name}}</li>
+{{/each}}
+</ul>
+
+{{#if x < 5}}
+   <span>x is less then 5</span>
+{{else if x > 5}}
+    <span>x is greater then 5</span>
+{{else}}
+   <span>x is equal to 5</span>
+{{/if}}
+
+{{@upperCase(title)}}
+```
+### Object:
+```javascript
+{
+   persons: [
+      { name: 'John' },
+      { name: 'Jane' },
+      { name: 'Jim' },
+   ],
+   x: 2,
+   title: 'The Cat in the Hat'
+}
+```
+
+### Output:
+##### *text representation*
+```handlebars
+<ul>
+   <li>1 - John</li>
+   <li>2 - Jane</li>
+   <li>3 - Jim</li>
+</ul>
+
+
+   x is less then 5
+
+
+THE CAT IN THE HAT
+```
+
+For all features see [Bars Spec](bars-spec.md).
+>>>>>>> Mike96Angelo/master
 
 ## Table of Contents
 
 * [Bars](#bars)
     * [Bars.compile(template)](#compile)
+    * [Bars.preCompile(template)](#pre-compile)
+    * [Bars.build(compiledTemplate)](#build)
+    * [Bars.registerBlock(name, func)](#register-block)
     * [Bars.registerPartial(name, template)](#register-partial)
-    * [Bars.registerHelper(name, func)](#register-helper)
+    * [Bars.registerTransform(name, func)](#register-transform)
     * [Class: Fragment](#class-fragment)
         * [Fragment.render()](#frament-render)
     * [Class: DomFrag](#class-dom-frag)
@@ -14,17 +97,12 @@
 
 <a name="bars"></a>
 
-# Bars
-
-Client-side html templating system that emits DOM.  The templates can be updated with new data without re-writing the DOM.
-
-### Install:
-```
-$ npm install bars
-```
 
 <a name="compile"></a>
-## Bars.compile(template)
+## Bars.compile(template) 
+#### *not available in the runtime only package.*
+
+Also see [bars-browserify](https://github.com/Mike96Angelo/Bars-Browserify).
 
 * *template* `String` A Bars template string.
 * *return*: `Fragment` A new [Fragment](#class-fragment) created from the `template`.
@@ -33,17 +111,75 @@ Returns a new [Fragment](#class-fragment).
 
 Example:
 ```javascript
-var bars = Bars.create();
+var bars = new Bars();
 
 var frag = bars.compile('<h1>Hello, {{name}}.</h1>');
 
+//Note: bars.compile(template) is equivalent to bars.build(bars.preCompile(template))
+
+```
+
+<a name="pre-compile"></a>
+## Bars.preCompile(template) 
+#### *not available in the runtime only package.*
+
+Also see [bars-browserify](https://github.com/Mike96Angelo/Bars-Browserify).
+
+* *template* `String` A Bars template string.
+* *return*: `Object` A object structure representing the `template`.
+
+Returns a object structure representing the `template`.
+
+Example:
+```javascript
+var bars = new Bars();
+
+var myCompiledTemplate = bars.preCompile('<h1>Hello, {{name}}.</h1>');
+
+```
+
+<a name="build"></a>
+## Bars.build(compiledTemplate)
+
+* *compiledTemplate* `Object` A Bars compiled template.
+* *return*: `Fragment` A new [Fragment](#class-fragment) created from the `template`.
+
+Returns a new [Fragment](#class-fragment).
+
+Example:
+```javascript
+var bars = new Bars();
+
+var frag = bars.build(myComiledTemplate);
+
+```
+
+<a name="register-block"></a>
+## Bars.registerBlock(name, func)
+
+* *name* `String` The name of the partial.
+* *func* `Function` The partial template.
+* *return*: `Bars` *This* [Bars](#bars).
+
+Returns *this* [Bars](#bars).
+
+Example:
+```javascript
+bars.registerBlock('unless', function unlessBlock(con) {
+    return !con;
+});
+
+/**
+ * To use the `unless` block in a template
+ * use this {{#unless <arg>}} {{else}} {{/unless}}.
+ */
 ```
 
 <a name="register-partial"></a>
 ## Bars.registerPartial(name, template)
 
 * *name* `String` The name of the partial.
-* *template* `Function` The partial template.
+* *template* `String` The partial template.
 * *return*: `Bars` *This* [Bars](#bars).
 
 Returns *this* [Bars](#bars).
@@ -58,25 +194,24 @@ bars.registerPartial('person', '<h2>{{name}}</h2>{{#if age}} - {{age}}{{/if}}');
  */
 ```
 
-<a name="register-helper"></a>
-## Bars.registerHelper(name, func)
+<a name="register-transform"></a>
+## Bars.registerTransform(name, func)
 
-* *name* `String` The name of the helper.
-* *func* `Function` The helper function.
+* *name* `String` The name of the partial.
+* *func* `Function` The partial template.
 * *return*: `Bars` *This* [Bars](#bars).
 
 Returns *this* [Bars](#bars).
 
 Example:
 ```javascript
-bars.registerPartial('caps', function (text) {
-    return text && text.toString().toUpperCase();
+bars.registerPartial('upperCase', function upperCase(a) {
+    return String(a).toUpperCase();
 });
 
 /**
- * To use the `caps` partial in another
- * template use this {{?caps <args...>}}
- * or {{{?caps <args...>}}} to render as html.
+ * To use the `upperCase` transform in a
+ * template use this {{@upperCase(<arg>)}}.
  */
 ```
 
@@ -136,7 +271,7 @@ dom.appendTo(document.body);
 ## License:
     The MIT License (MIT)
 
-    Copyright (c) 2015 Michaelangelo Jong
+    Copyright (c) 2015-2016 Michaelangelo Jong
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal

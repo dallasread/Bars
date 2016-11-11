@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Bars = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var Generator = require('generate-js'),
     Renderer = require('./renderer'),
     Token = require('./compiler/tokens'),
@@ -52,25 +52,7 @@ Bars.definePrototype({
 
 module.exports = Bars;
 
-},{"../package":56,"./blocks":3,"./compiler/tokens":28,"./renderer":43,"./transforms":48,"generate-js":55}],2:[function(require,module,exports){
-var Bars = require('./bars-runtime'),
-    compile = require('./compiler');
-
-
-Bars.definePrototype({
-    compile: function compile(template, filename, mode, flags) {
-        var _ = this;
-        return _.build(_.parse(template, filename, mode, flags));
-    },
-
-    parse: function parse(template, filename, mode, flags) {
-        return compile(template, filename, mode, flags);
-    }
-});
-
-module.exports = Bars;
-
-},{"./bars-runtime":1,"./compiler":5}],3:[function(require,module,exports){
+},{"../package":31,"./blocks":2,"./compiler/tokens":6,"./renderer":18,"./transforms":23,"generate-js":30}],2:[function(require,module,exports){
 var Generator = require('generate-js');
 
 var Blocks = Generator.generate(function Blocks() {});
@@ -109,37 +91,6 @@ Blocks.definePrototype({
             if (keys.length) {
                 // TODO: This should be smarter.
 
-<<<<<<< HEAD
-                for (var i = _.nodes.length - 1; i >= 0; i--) {
-                    _.nodes[i].remove();
-                }
-
-                for (var i = 0; i < keys.length; i++) {
-                    _.createFragment(keys[i]);
-                }
-
-                return true;
-            }
-        }
-
-        return false;
-    },
-
-    reverse: function reverseBlock(data) {
-        var _ = this,
-            i;
-
-        if (data && typeof data === 'object') {
-            var keys = Object.keys(data).reverse();
-
-            _.context = _.context.getContext(_.args);
-
-            if (keys.length) {
-                // TODO: This should be smarter.
-
-                for (var i = _.nodes.length - 1; i >= 0; i--) {
-                    _.nodes[i].remove();
-=======
                 // remove extra nodes
                 for (i = _.nodes.length - 1; i >= keys.length; i--) {
                     _.nodes[i].remove();
@@ -158,11 +109,6 @@ Blocks.definePrototype({
 
                     _.nodes[i].context.path = newPath;
                     _.nodes[i].context.data = data[keys[i]];
->>>>>>> Mike96Angelo/master
-                }
-
-                for (var i = 0; i < keys.length; i++) {
-                    _.createFragment(keys[i]);
                 }
 
                 return true;
@@ -175,2052 +121,7 @@ Blocks.definePrototype({
 
 module.exports = Blocks;
 
-},{"generate-js":55}],4:[function(require,module,exports){
-var compileit = require('compileit');
-var parsers = require('./parsers');
-
-var Token = require('./tokens');
-
-/* Parse Modes */
-
-var parseModes = {
-    'TEXT': [
-        parsers.parseText,
-        parsers.parseBarsMarkup
-    ],
-    'BARS': [
-        parsers.parseBarsComment,
-        parsers.parseBarsBlock,
-        parsers.parseBarsPartial,
-        parsers.parseBarsInsert
-    ],
-    'DOM': [
-        parsers.parseText,
-        parsers.parseHTMLComment,
-        parsers.parseHTMLTag,
-        parsers.parseBarsMarkup
-    ],
-    'ATTR': [
-        parsers.parseHTMLTagEnd,
-        parsers.parseWhitspace,
-        parsers.parseHTMLAttr,
-        parsers.parseBarsMarkup
-    ],
-    'VALUE': [
-        parsers.parseHTMLAttrEnd,
-        parsers.parseText,
-        parsers.parseBarsMarkup
-    ],
-    'LOGIC': [
-        parsers.parseBarsMarkupEnd,
-        parsers.parseExpressionTransform,
-        parsers.parseExpressionValue,
-        parsers.parseExpressionLiteral,
-        parsers.parseExpressionOpperator,
-        parsers.parseWhitspace
-    ],
-    'LOGIC-ARGS': [
-        parsers.parseExpressionTransformEnd,
-        parsers.parseExpressionTransform,
-        parsers.parseExpressionValue,
-        parsers.parseExpressionLiteral,
-        parsers.parseExpressionOpperator,
-        parsers.parseWhitspace
-    ]
-};
-
-var compiler = new compileit.Compiler(parseModes, {
-    modeFormater: function (a) {
-        return a.green;
-    }, //
-    charFormater: function (a) {
-        return a.green.underline;
-    },
-    funcFormater: function (a) {
-        return a.red;
-    },
-    typeFormater: function (a) {
-        return a.red;
-    },
-    sourceFormater: function (a) {
-        return ('`' + a + '`')
-            .green.underline;
-    }
-});
-
-function compile(str, file, mode, flags) {
-    mode = mode || 'DOM';
-    flags = flags || {};
-
-    var program = new Token.tokens.program(),
-        frag = new Token.tokens.fragment();
-
-    frag.nodesUpdate = 1;
-
-    program.mode = mode;
-    program.fragment = frag;
-
-    frag.nodes = compiler.compile(str, file, mode, flags);
-
-    return program;
-}
-
-module.exports = compile;
-
-},{"./parsers":22,"./tokens":28,"compileit":49}],5:[function(require,module,exports){
-module.exports = require('./compiler');
-
-},{"./compiler":4}],6:[function(require,module,exports){
-var Token = require('../tokens'),
-    BlockToken = Token.tokens.block,
-    FragmentToken = Token.tokens.fragment,
-    utils = require('../utils');
-
-function parseBarsBlock(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index + 2,
-        length = code.length,
-        block,
-        isOpening,
-        isClosing,
-        isElse,
-        alternateIsBlock,
-        blockMode = flags.markup.mode;
-
-    if ( /* / */
-        code.codePointAt(index) === 0x002f
-    ) {
-        isClosing = true;
-        flags.markup.closeParseScope = true;
-    } else if ( /* # */
-        code.codePointAt(index) === 0x0023 ||
-        (scope.token && scope.token.alternateIsBlock)
-    ) {
-        isOpening = true;
-    } else if ( /* else */
-        code.codePointAt(index) === 0x0065 &&
-        code.codePointAt(++index) === 0x006c &&
-        code.codePointAt(++index) === 0x0073 &&
-        code.codePointAt(++index) === 0x0065
-    ) {
-        isElse = true;
-        if (utils.isWhitespace(code.codePointAt(index + 1))) {
-            index += 2;
-
-            alternateIsBlock = true;
-        } else if (
-            code.codePointAt(++index) === 0x007d &&
-            code.codePointAt(++index) === 0x007d
-        ) {
-            index++;
-        }
-
-        block = new BlockToken(code);
-        code.index = index;
-        block.close();
-
-        if (!BlockToken.isCreation(scope.token) || scope.token.elsed) {
-            throw code.makeError(
-                block.range[0], block.range[1],
-                'Unexpected Token: ' +
-                JSON.stringify(block.source(code)) +
-                '.'
-            );
-        }
-
-        scope.token.elsed = true;
-
-        scope.token.alternateIsBlock = alternateIsBlock;
-        flags.markup.closeParseScope = true;
-
-        scope.close();
-        parseMode.close();
-
-        return true;
-    } else {
-        return null;
-    }
-
-    if (scope.token && scope.token.alternateIsBlock) {
-        index -= 2;
-    } else
-        index++;
-    block = new BlockToken(code);
-
-    if (!utils.isHTMLIdentifierStart(code.codePointAt(index))) {
-        throw code.makeError(
-            index, index + 1,
-            'Unexpected Token: Expected <[A-Za-z]> but found ' +
-            JSON.stringify(code.charAt(index)) +
-            '.'
-        );
-    }
-
-    for (; index < length; index++) {
-        ch = code.codePointAt(index);
-
-        if (utils.isHTMLIdentifier(ch)) {
-            block.name += code.charAt(index);
-        } else {
-            break;
-        }
-    }
-
-    if (isClosing) {
-        if (
-            code.codePointAt(index) === 0x007d &&
-            code.codePointAt(++index) === 0x007d
-        ) {
-            index++;
-        } else {
-            throw code.makeError(
-                index, index + 1,
-                'Unexpected Token: Expected ' +
-                JSON.stringify('}}') +
-                ' but found ' +
-                JSON.stringify(code.charAt(index)) +
-                '.'
-            );
-        }
-
-        code.index = index;
-        block.close();
-
-        if (!BlockToken.isCreation(scope.token)) {
-            throw code.makeError(
-                block.range[0], block.range[1],
-                'Unexpected Closing Block: ' +
-                JSON.stringify(block.source(code)) +
-                '.'
-            );
-        }
-
-        if (scope.token.name !== block.name) {
-            throw code.makeError(
-                block.range[0], block.range[1],
-                'Mismatch Closing Block: Expected ' +
-                JSON.stringify('{{/' + scope.token.name + '}}') +
-                ' but found ' +
-                JSON.stringify(block.source(code)) +
-                '.'
-            );
-        }
-
-        scope.close();
-
-        parseMode.close();
-
-        return true;
-    }
-
-    if (utils.isWhitespace(code.codePointAt(index)))
-        index++;
-
-    code.index = index;
-
-    var args = [];
-
-    scope.push(block);
-
-    parseMode('LOGIC', args, flags);
-
-    block.expression = args[0];
-
-<<<<<<< HEAD
-        var prev = _.prevDom;
-
-        if (prev) {
-            parent.insertBefore(_.$el, prev.$el.nextSibling);
-        } else {
-            parent.appendChild(_.$el);
-        }
-    },
-=======
-    if (args.length > 1) {
-        throw code.makeError(
-            args[1].range[0], args[1].range[1],
-            'Unexpected Token: ' +
-            JSON.stringify(args[1].source(code)) + '.'
-        );
-    }
-
-    args = null;
-
-    if (!block.closed) {
-        throw code.makeError(
-            code.index, code.index + 1,
-            'Unclosed Block: Expected ' +
-            JSON.stringify('}}') +
-            ' but found ' +
-            JSON.stringify(code.charAt(code.index)) +
-            '.'
-        );
-    }
->>>>>>> Mike96Angelo/master
-
-    if (!block.expression) {
-        throw code.makeError(
-            code.index - 2, code.index - 1,
-            'Missing <expression>.'
-        );
-    }
-
-    block.consequent = new FragmentToken(code);
-
-    delete block.closed;
-    scope.push(block);
-
-    parseMode(blockMode, block.consequent.nodes, flags);
-
-    index = code.index;
-
-    block.consequent.close();
-
-    code.index = index;
-
-    if (block.elsed) {
-        if (block.alternateIsBlock) {
-            delete block.closed;
-            scope.push(block);
-
-            flags.markup = {
-                mode: blockMode
-            };
-            block.alternate = parseBarsBlock(mode, code, [], flags, scope,
-                parseMode);
-
-            delete flags.markup;
-
-            scope.close();
-
-            return block;
-        }
-
-        block.alternate = new FragmentToken(code);
-
-        delete block.closed;
-        scope.push(block);
-
-        parseMode(blockMode, block.alternate.nodes, flags);
-
-        index = code.index;
-
-        block.alternate.close();
-    }
-
-    if (!block.closed) {
-        throw code.makeError(
-            block.range[0], block.range[0] + block.name.length + 6 +
-            block.expression.length,
-            'Unclosed Block: Expected ' +
-            JSON.stringify('{{/' + block.name + '}}') +
-            ' to fallow ' +
-            JSON.stringify('{{#' + block.name + ' <expression>}}') +
-            '.'
-        );
-    }
-
-    parseMode.close();
-
-    return block;
-}
-
-module.exports = parseBarsBlock;
-
-},{"../tokens":28,"../utils":40}],7:[function(require,module,exports){
-//parseBarsComment
-
-function parseBarsComment(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index + 2,
-        length = code.length;
-
-    if ( /* ! */
-        code.codePointAt(index) === 0x0021
-    ) {
-        if (
-            code.codePointAt(++index) === 0x002d &&
-            code.codePointAt(++index) === 0x002d
-        ) {
-            index++;
-
-            for (; index < length; index++) {
-                if ( /* --}} */
-                    code.codePointAt(index) === 0x002d &&
-                    code.codePointAt(index + 1) === 0x002d &&
-                    code.codePointAt(index + 2) === 0x007d &&
-                    code.codePointAt(index + 3) === 0x007d
-                ) {
-                    index += 4; /* for --}} */
-                    code.index = index;
-
-<<<<<<< HEAD
-/**
- * [HTMLNode description]
- * @param {[type]} bars    [description]
- * @param {[type]} struct  [description]
- */
-Nodes.HTML = BarsNode.generate(function HTMLNode(bars, struct) {
-    var _ = this;
-
-    _.supercreate(bars, struct);
-
-    _.defineProperties({
-        $el: document.createElement('div'),
-        path: struct.args
-    });
-});
-
-Nodes.HTML.definePrototype({
-    isDOM: true,
-
-    _update: function _update(context) {
-        var _ = this,
-            $parent = _.parentTag.$el || _.parentTag.$parent;
-
-        $parent.innerHTML = context(_.path);
-    },
-
-    _elementAppendTo: function _elementAppendTo() {},
-    _elementRemove: function _elementRemove() {
-        var _ = this,
-            $parent = _.parentTag.$el || _.parentTag.$parent;
-
-        while ($parent.firstChild) {
-            $parent.removeChild($parent.firstChild);
-        }
-    }
-});
-
-
-/**
- * [AttrNode description]
- * @param {[type]} bars    [description]
- * @param {[type]} struct  [description]
- */
-Nodes.ATTR = BarsNode.generate(function AttrNode(bars, struct) {
-    var _ = this,
-        nodes = struct.nodes || ARRAY;
-=======
-                    parseMode.close();
->>>>>>> Mike96Angelo/master
-
-                    if (flags.keepComments) {
-                        // make a CommentToken and return that.
-                    }
-
-                    return true;
-                }
-            }
-
-            throw code.makeError(
-                'Unclosed Comment: Expected "--}}" to fallow "{{!--".',
-                5
-            );
-        }
-
-        index++;
-
-        for (; index < length; index++) {
-
-            if ( /* }} */
-                code.codePointAt(index) === 0x007d &&
-                code.codePointAt(index + 1) === 0x007d
-            ) {
-                index += 2; /* for }} */
-                code.index = index;
-
-                parseMode.close();
-
-<<<<<<< HEAD
-    _.supercreate(bars, struct);
-    _.path = _.args;
-});
-=======
-                if (flags.keepComments) {
-                    // make a CommentToken and return that.
-                }
->>>>>>> Mike96Angelo/master
-
-                return true;
-            }
-        }
-
-        throw code.makeError(
-            code.index, code.index + 3,
-            'Unclosed Comment: Expected "}}" to fallow "{{!".'
-        );
-    }
-
-<<<<<<< HEAD
-        frag.setPath(path);
-        _.appendChild(frag);
-    },
-=======
-    return null;
-}
-
-module.exports = parseBarsComment;
->>>>>>> Mike96Angelo/master
-
-},{}],8:[function(require,module,exports){
-var InsertToken = require('../tokens')
-    .tokens.insert;
-
-function parseBarsInsert(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index + 2,
-        length = code.length,
-        insert = new InsertToken(code),
-        args = [];
-
-    scope.push(insert);
-    code.index = index;
-
-    parseMode('LOGIC', args, flags);
-
-    if (args.length > 1) {
-        code.index = args[1].range[0];
-        throw code.makeError(
-            args[1].range[0], args[1].range[1],
-            'Unexpected Token: ' +
-            JSON.stringify(args[1].source(code)) + '.'
-        );
-    }
-
-    insert.expression = args[0];
-
-    args = null;
-
-    if (!insert.closed) {
-        throw code.makeError(
-            code.index, code.index + 1,
-            'Unclosed Block: Expected ' +
-            JSON.stringify('}}') +
-            ' but found ' +
-            JSON.stringify(code.charAt(code.index)) +
-            '.'
-        );
-    }
-
-<<<<<<< HEAD
-            if (_.alternate) {
-                _.alternate._elementRemove();
-            }
-        } else {
-            for (i = 0; i < _.nodes.length; i++) {
-                _.nodes[i]._elementRemove();
-            }
-
-            if (!_.alternate) {
-                _.alternate = Nodes.FRAG.create(_.bars, _.altFrag);
-                _.alternate.parent = _;
-            }
-=======
-    if (!insert.expression) {
-        throw code.makeError(
-            code.index - 2, code.index - 1,
-            'Missing <expression>.'
-        );
-    }
->>>>>>> Mike96Angelo/master
-
-    parseMode.close();
-    return insert;
-}
-
-
-module.exports = parseBarsInsert;
-
-},{"../tokens":28}],9:[function(require,module,exports){
-// parseBarsMarkupEnd
-var Token = require('../tokens');
-
-function parseBarsMarkupEnd(mode, code, tokens, flags, scope, parseMode) {
-    if ( /* }} */
-        code.codePointAt(code.index) === 0x007d &&
-        code.codePointAt(code.index + 1) === 0x007d
-    ) {
-        // console.log(JSON.stringify(scope.token.toObject(), null, 2))
-        if (
-            Token.tokens.insert.isCreation(scope.token) ||
-            Token.tokens.block.isCreation(scope.token) ||
-            Token.tokens.partial.isCreation(scope.token)
-        ) {
-            code.index += 2;
-            scope.close();
-            parseMode.close();
-            return true;
-        }
-    }
-
-    return null;
-}
-
-module.exports = parseBarsMarkupEnd;
-
-},{"../tokens":28}],10:[function(require,module,exports){
-//parseBarsMarkup
-
-<<<<<<< HEAD
-function parentPath(_) {
-    var parent = _,
-        path = [];
-
-    while (parent = parent.parent) {
-        if (parent.path) path.unshift(parent.path);
-    }
-
-    return path.join('/');
-}
-
-Nodes.PARTIAL.definePrototype({
-    _update: function _update(context) {
-        var _ = this;
-=======
-function parseBarsMarkup(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index,
-        length = code.length;
->>>>>>> Mike96Angelo/master
-
-    if ( /* {{ */
-        code.codePointAt(index) === 0x007b &&
-        code.codePointAt(++index) === 0x007b
-    ) {
-        flags.markup = {};
-        flags.markup.mode = mode;
-        parseMode('BARS', tokens, flags);
-
-<<<<<<< HEAD
-            if (partial && typeof partial === 'object') {
-                _.partial = Nodes.FRAG.create(_.bars, partial.struct);
-                _.partial.parent = _;
-                _.partial.setPath('');
-            } else {
-                throw new Error('Partial not found: ' + _.name);
-=======
-        if (code.index > index) {
-            if (flags.markup && flags.markup.closeParseScope) {
-                parseMode.close();
->>>>>>> Mike96Angelo/master
-            }
-            delete flags.markup;
-            if (scope.token) {
-                scope.token.updates();
-            }
-            return true;
-        }
-
-<<<<<<< HEAD
-        context = context.getContext('');
-
-        var newData = {},
-            path;
-
-        for (var key in _.args) {
-            path = _.args[key];
-
-            if (!path) continue;
-            if (path[0] !== '/') path = parentPath(_) + '/' + path;
-
-            newData[key] = context(path);
-        }
-
-        _.partial.update(newData);
-    },
-
-    _elementRemove: function _elementRemove() {
-        var _ = this;
-
-        if (_.partial) {
-            _.partial._elementRemove();
-        }
-=======
-        delete flags.markup;
->>>>>>> Mike96Angelo/master
-    }
-
-    return null;
-}
-
-module.exports = parseBarsMarkup;
-
-},{}],11:[function(require,module,exports){
-var PartialToken = require('../tokens')
-    .tokens.partial,
-    utils = require('../utils');
-
-function parseBarsPartial(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index + 2,
-        length = code.length,
-        partial;
-
-    if ( /* > */
-        code.codePointAt(index) === 0x003e
-    ) {
-        partial = new PartialToken(code);
-
-        index++;
-
-        if (!utils.isHTMLIdentifierStart(code.codePointAt(index))) {
-            throw code.makeError(
-                index, index + 1,
-                'Unexpected Token: Expected <[A-Za-z]> but found ' +
-                JSON.stringify(code.charAt(index)) +
-                '.'
-            );
-        }
-
-        for (; index < length; index++) {
-            ch = code.codePointAt(index);
-
-            if (utils.isHTMLIdentifier(ch)) {
-                partial.name += code.charAt(index);
-            } else {
-                break;
-            }
-        }
-
-        code.index = index;
-
-
-<<<<<<< HEAD
-        _.$parent = null;
-    },
-
-    getValue: function getValue(value, splitPath) {
-        var _ = this;
-
-        for (var i = 0; i < splitPath.length; i++) {
-            if (splitPath[i] === '@key' || splitPath[i] === '@index') {
-                value = splitPath[i - 1];
-            } else if (value !== null && value !== void(0)) {
-                value = value[splitPath[i]];
-            } else {
-                value = undefined;
-            }
-        }
-
-        return typeof value === 'undefined' ? '' : value;
-    },
-
-    getContext: function getContext(basepath, obj) {
-        var _ = this;
-
-        function context(path) {
-            if (obj) {
-                var newObj = {};
-
-                for (var key in obj) {
-                    newObj[key] = _.getValue(_.data, _.resolve(basepath, obj[key]));
-                }
-
-                return _.resolveObj(newObj, path) || '';
-            }
-
-            return _.getValue(_.data, _.resolve(basepath, path));
-        }
-
-        context.getContext = function getContext(path, obj) {
-            return _.getContext(_.resolve(basepath, path).join('/'), obj);
-        };
-=======
-        var args = [];
-
-        scope.push(partial);
-        parseMode('LOGIC', args, flags);
-
-        if (args.length > 1) {
-            throw code.makeError(
-                args[1].range[0], args[1].range[1],
-                'Unexpected Token: ' +
-                JSON.stringify(args[1].source(code)) + '.'
-            );
-        }
-
-        partial.expression = args[0] || null;
-
-        args = null;
-
-        if (!partial.closed) {
-            throw code.makeError(
-                index, index + 1,
-                'Unclosed Block: Expected ' +
-                JSON.stringify('}}') +
-                ' but found ' +
-                JSON.stringify(code.charAt(code.index)) +
-                '.'
-            );
-        }
-
-        // if (!partial.argument) {
-        //     code.index -= 2;
-        //     throw code.makeError('Missing <arg>.');
-        // }
->>>>>>> Mike96Angelo/master
-
-        parseMode.close();
-        return partial;
-    }
-
-    return null;
-}
-
-module.exports = parseBarsPartial;
-
-<<<<<<< HEAD
-    resolve: function resolve(basepath, path) {
-        if (!path) return [];
-
-        var newSplitpath;
-
-        if (path[0] === '~') path = path.replace(/^~/, '/');
-        if (path[0] === '/') {
-            newSplitpath = path.split('/');
-        } else {
-            newSplitpath = basepath.split('/').concat(path.split('/'));
-        }
-
-        for (var i = 0; i < newSplitpath.length; i++) {
-            if (newSplitpath[i] === '.' || newSplitpath[i] === '') {
-                newSplitpath.splice(i, 1);
-                i--;
-            } else if (newSplitpath[i] === '..') {
-                newSplitpath.splice(i - 1, 2);
-                i -= 2;
-            }
-        }
-
-        return newSplitpath;
-    },
-
-    resolveObj: function resolveObj(obj, path) {
-        var _ = this,
-            splat = path.split('/');
-
-        for (var i = 0; i < splat.length; i++) {
-            obj = obj[splat[i]];
-            if (!obj) return;
-        }
-
-        return obj;
-    },
-});
-=======
-},{"../tokens":28,"../utils":40}],12:[function(require,module,exports){
-var Token = require('../tokens'),
-    LiteralToken = Token.tokens.literal,
-    OpperatorToken = Token.tokens.opperator;
-
-function STRING(mode, code, tokens, flags, scope, parseMode) {
-    var ch,
-        index = code.index,
-        length = code.length,
-        text;
-
-    /* ' */
-    if (code.codePointAt(index) !== 0x0027) {
-        return null;
-    }
-
-    index++;
-
-    text = new LiteralToken(code);
-    text.value = '';
->>>>>>> Mike96Angelo/master
-
-    for (; index < length; index++) {
-        ch = code.codePointAt(index);
-
-        if (ch === 0x000a) {
-            code.index = index;
-            return null;
-        }
-
-        if ( /* ' but not \' */
-            ch === 0x0027 &&
-            code.codePointAt(index - 1) !== 0x005c
-        ) {
-            index++;
-            break;
-        }
-
-<<<<<<< HEAD
-Helpers.definePrototype({
-    log: function log() {
-        console.log.apply(console, arguments);
-        return null;
-=======
-        text.value += code.charAt(index);
->>>>>>> Mike96Angelo/master
-    }
-
-    if (index > code.index) {
-        code.index = index;
-        text.close();
-
-        if (
-            OpperatorToken.isCreation(scope.token)
-        ) {
-            scope.close();
-            parseMode.close();
-        }
-
-        return text;
-    }
-
-    return null;
-}
-
-function NUMBER(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index,
-        length = code.length,
-        ch = code.codePointAt(index),
-        nextCh = code.codePointAt(index + 1),
-        dot,
-        Ee;
-
-    if (
-        (ch === 0x002d && 0x0030 <= nextCh && nextCh <= 0x0039) || /* -[0-9] */
-        (0x0030 <= ch && ch <= 0x0039) /* [0-9] */
-    ) {
-        index++;
-
-        number = new LiteralToken(code);
-
-        for (; index < length; index++) {
-            ch = code.codePointAt(index);
-
-            if (0x0030 <= ch && ch <= 0x0039) {
-                continue;
-            } else if (ch === 0x0045 || ch === 0x0065) { /* [Ee] */
-                index++;
-
-                ch = code.codePointAt(index);
-                nextCh = code.codePointAt(index + 1);
-
-                if ( /* [+-]?[0-9] */
-                    Ee ||
-                    !(
-                        (
-                            (ch === 0x002b || ch === 0x002d) &&
-                            (0x0030 <= nextCh && nextCh <= 0x0039)
-                        ) ||
-                        (0x0030 <= ch && ch <= 0x0039)
-                    )
-                ) {
-                    code.index = index - 1;
-                    throw code.makeError(
-                        'Unexpected Token: ' +
-                        JSON.stringify(code.charAt(index - 1)) +
-                        '.'
-                    );
-                }
-
-                Ee = true;
-            } else if (ch === 0x002e) { /* . */
-                index++;
-                ch = code.codePointAt(index);
-                if ( /* [+-]?[0-9] */
-                    Ee ||
-                    dot ||
-                    !(0x0030 <= ch && ch <= 0x0039)
-                ) {
-                    code.index = index - 1;
-                    throw code.makeError(
-                        'Unexpected Token: ".".'
-                    );
-                }
-
-                dot = true;
-            } else {
-                break;
-            }
-        }
-        code.index = index;
-        number.close();
-        number.value = Number(number.source(code));
-
-        if (
-            OpperatorToken.isCreation(scope.token)
-        ) {
-            scope.close();
-            parseMode.close();
-        }
-
-        return number;
-    }
-
-    return null;
-}
-
-function BOOLEAN(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index,
-        bool;
-
-    if ( /* true */
-        code.codePointAt(index) === 0x0074 &&
-        code.codePointAt(++index) === 0x0072 &&
-        code.codePointAt(++index) === 0x0075 &&
-        code.codePointAt(++index) === 0x0065
-    ) {
-        bool = true;
-    } else if ( /* false */
-        code.codePointAt(index) === 0x0066 &&
-        code.codePointAt(++index) === 0x0061 &&
-        code.codePointAt(++index) === 0x006c &&
-        code.codePointAt(++index) === 0x0073 &&
-        code.codePointAt(++index) === 0x0065
-    ) {
-        bool = false;
-    } else {
-        return null;
-    }
-
-    var boolean = new LiteralToken(code);
-
-    index++;
-    code.index = index;
-    boolean.close();
-
-    boolean.value = bool;
-
-    if (
-        OpperatorToken.isCreation(scope.token)
-    ) {
-        scope.close();
-        parseMode.close();
-    }
-
-<<<<<<< HEAD
-    throw new SyntaxError(message + ' at ' + lines + ':' + columns + ' [' + buffer.slice(index - 30, index + 30).replace(/\n/g, '') + ']');
-=======
-    return bool;
->>>>>>> Mike96Angelo/master
-}
-
-function NULL(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index,
-        nul;
-
-    if ( /* true */
-        code.codePointAt(index) === 0x006e &&
-        code.codePointAt(++index) === 0x0075 &&
-        code.codePointAt(++index) === 0x006c &&
-        code.codePointAt(++index) === 0x006c
-    ) {
-        index++;
-
-        nul = new LiteralToken(code);
-        code.index = index;
-        nul.close();
-        nul.value = null;
-    } else {
-        return null;
-    }
-
-    if (
-        OpperatorToken.isCreation(scope.token)
-    ) {
-        scope.close();
-        parseMode.close();
-    }
-
-    return nul;
-}
-
-
-function parseExpressionLiteral(mode, code, tokens, flags, scope, parseMode) {
-    return (
-        STRING(mode, code, tokens, flags, scope, parseMode) ||
-        NUMBER(mode, code, tokens, flags, scope, parseMode) ||
-        BOOLEAN(mode, code, tokens, flags, scope, parseMode) ||
-        NULL(mode, code, tokens, flags, scope, parseMode)
-    );
-}
-
-module.exports = parseExpressionLiteral;
-
-},{"../tokens":28}],13:[function(require,module,exports){
-var Token = require('../tokens'),
-    ValueToken = Token.tokens.value,
-    LiteralToken = Token.tokens.literal,
-    OpperatorToken = Token.tokens.opperator,
-    TransformToken = Token.tokens.transform,
-    utils = require('../utils');
-
-function parseExpressionOpperator(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index,
-        length = code.length,
-        originalIndex = index,
-        oldIndex,
-        ch = code.codePointAt(index),
-        ch2, ch3,
-        expression,
-        binary_fail;
-
-    oldIndex = index;
-    for (; index < length; index++) {
-        ch = code.codePointAt(index);
-
-        if (!utils.isWhitespace(ch)) break;
-
-        if (flags.whitepaceString && ch === 0x000a) {
-            code.index = index;
-            return null;
-        }
-    }
-    if (index === oldIndex) {
-        binary_fail = true;
-    }
-
-    ch = code.codePointAt(index);
-    ch2 = code.codePointAt(index + 1);
-    ch3 = code.codePointAt(index + 2);
-
-    if ( /* handle BINARY-EXPRESSION */
-        (ch === 0x003d && ch2 === 0x003d && ch3 === 0x003d) || /* === */
-        (ch === 0x0021 && ch2 === 0x003d && ch3 === 0x003d) /* !== */
-    ) {
-        code.index = index;
-        expression = new OpperatorToken(code);
-        expression.opperator = code.slice(index, index + 3);
-        expression.binary = true;
-        index += 2;
-    } else if ( /* handle BINARY-EXPRESSION */
-        (ch === 0x003d && ch2 === 0x003d) || /* == */
-        (ch === 0x0021 && ch2 === 0x003d) || /* != */
-        (ch === 0x003c && ch2 === 0x003d) || /* <= */
-        (ch === 0x003e && ch2 === 0x003d) || /* >= */
-        (ch === 0x0026 && ch2 === 0x0026) || /* && */
-        (ch === 0x007c && ch2 === 0x007c) /* || */
-    ) {
-        code.index = index;
-        expression = new OpperatorToken(code);
-        expression.opperator = code.slice(index, index + 2);
-        expression.binary = true;
-        index++;
-    } else if ( /* handle BINARY-EXPRESSION */
-        (ch === 0x002b) || /* + */
-        (ch === 0x002d) || /* - */
-        (ch === 0x002a) || /* * */
-        (ch === 0x002f) || /* / */
-        (ch === 0x0025) || /* % */
-        (ch === 0x003c) || /* < */
-        (ch === 0x003e) /* > */
-    ) {
-        code.index = index;
-        expression = new OpperatorToken(code);
-        expression.opperator = code.charAt(index);
-        expression.binary = true;
-    } else if ( /* handle UNARY-EXPRESSION */
-        ch === 0x0021 /* ! */
-    ) {
-        code.index = index;
-        expression = new OpperatorToken(code);
-        expression.opperator = code.charAt(index);
-        expression.unary = true;
-        index++;
-    }
-
-    if (!expression || !expression.opperator) {
-        if (binary_fail) {
-            return null;
-        }
-        code.index = index;
-        return true;
-    }
-
-    if (expression.binary) {
-        if (binary_fail) {
-            throw code.makeError(
-                originalIndex, originalIndex + expression.opperator.length,
-                'Unexpected Token: ' +
-                JSON.stringify(expression.opperator) +
-                ' missing whitespace before opperator.'
-            );
-        }
-        expression.arguments[0] = tokens.pop();
-
-        if (!expression.arguments[0]) {
-            throw code.makeError(
-                index, index + expression.opperator.length,
-                'Missing left-hand <arg>.'
-            );
-        }
-
-        if (!ValueToken.isCreation(expression.arguments[0]) &&
-            !LiteralToken.isCreation(expression.arguments[0]) &&
-            !OpperatorToken.isCreation(expression.arguments[0]) &&
-            !TransformToken.isCreation(expression.arguments[0])
-        ) {
-            throw code.makeError(
-                expression.arguments[0].range[0],
-                expression.arguments[0].range[1],
-                'Unexpected left-hand <arg>: ' +
-                JSON.stringify(expression.arguments[0].source(code)) +
-                '.'
-            );
-        }
-
-        expression.range[0] = expression.arguments[0].range[0];
-        expression.loc.start = expression.arguments[0].loc.start;
-
-        index++;
-        oldIndex = index;
-        ch = code.codePointAt(index);
-        for (; index < length; index++) {
-            ch = code.codePointAt(index);
-
-            if (!utils.isWhitespace(ch)) break;
-
-            if (flags.whitepaceString && ch === 0x000a) {
-                code.index = index;
-                return null;
-            }
-        }
-        if (index === oldIndex) {
-            throw code.makeError(
-                index, index + 1,
-                'Unexpected Token: Expected <whitespace> but found ' +
-                JSON.stringify(code.charAt(index)) +
-                '.'
-            );
-        }
-    }
-
-    var args = [];
-    code.index = index;
-    scope.push(expression);
-
-    parseMode('LOGIC', args, flags);
-
-    expression.arguments[1] = args[0];
-
-    if (args.length > 1) {
-        throw code.makeError(
-            args[1].range[0], args[1].range[1],
-            'Unexpected Token: ' +
-            JSON.stringify(args[1].source(code)) + '.'
-        );
-    }
-
-    args = null;
-
-    if (!expression.closed || !expression.arguments[1]) {
-        code.index = index;
-        throw code.makeError(
-            index, index + expression.opperator.length,
-            'Missing right-hand <arg>.'
-        );
-    }
-
-    if (!ValueToken.isCreation(expression.arguments[1]) &&
-        !LiteralToken.isCreation(expression.arguments[1]) &&
-        !OpperatorToken.isCreation(expression.arguments[1]) &&
-        !TransformToken.isCreation(expression.arguments[1])
-    ) {
-        throw code.makeError(
-            expression.arguments[1].range[0],
-            expression.arguments[1].range[1],
-            'Unexpected right-hand <arg>: ' +
-            JSON.stringify(expression.arguments[1].source(code)) +
-            '.'
-        );
-    }
-
-    if (expression.unary) {
-        if (
-            OpperatorToken.isCreation(scope.token)
-        ) {
-            scope.close();
-            parseMode.close();
-        }
-    }
-
-    return expression;
-}
-
-module.exports = parseExpressionOpperator;
-
-},{"../tokens":28,"../utils":40}],14:[function(require,module,exports){
-// parseExpressionTransformEnd
-var Token = require('../tokens');
-
-function parseExpressionTransformEnd(mode, code, tokens, flags, scope,
-    parseMode) {
-    if ( /* ) */
-        code.codePointAt(code.index) === 0x0029 &&
-        Token.tokens.transform.isCreation(scope.token)
-    ) {
-        code.index++;
-        scope.close();
-        parseMode.close();
-        return true;
-    }
-
-    if ( /* , */
-        code.codePointAt(code.index) === 0x002c &&
-        Token.tokens.transform.isCreation(scope.token)
-    ) {
-        code.index++;
-        scope.token.nextArg = true;
-        parseMode.close();
-        return true;
-    }
-
-    return null;
-}
-
-module.exports = parseExpressionTransformEnd;
-
-},{"../tokens":28}],15:[function(require,module,exports){
-var Token = require('../tokens'),
-    TransformToken = Token.tokens.transform,
-    OpperatorToken = Token.tokens.opperator,
-    utils = require('../utils');
-
-function parseExpressionTransform(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index,
-        length = code.length,
-        transform,
-        ch = code.codePointAt(index);
-
-    if (ch !== 0x0040) { /* @ */
-        return null;
-    }
-
-    index++;
-
-    if (!utils.isHTMLIdentifierStart(code.codePointAt(index))) {
-        return null;
-    }
-
-    transform = new TransformToken(code);
-
-    for (; index < length; index++) {
-        ch = code.codePointAt(index);
-
-        if (utils.isHTMLIdentifier(ch)) {
-            transform.name += code.charAt(index);
-        } else {
-            break;
-        }
-    }
-
-    ch = code.codePointAt(index);
-    if (ch === 0x0028) { /* ( */
-        index++;
-        code.index = index;
-
-        scope.push(transform);
-
-        while (code.left) {
-            var args = [];
-
-
-            parseMode('LOGIC-ARGS', args, flags);
-
-            if (args.length > 1) {
-                code.index = args[1].range[0];
-                throw code.makeError(
-                    args[1].range[0], args[1].range[1],
-                    'Unexpected Token: ' +
-                    JSON.stringify(args[1].source(code)) + '.'
-                );
-            }
-
-            transform.arguments.push(args[0]);
-
-            if (transform.nextArg) {
-                delete transform.nextArg;
-                delete transform.closed;
-            }
-
-            if (transform.closed) {
-                break;
-            }
-        }
-    } else {
-        return null;
-    }
-
-    if (
-        OpperatorToken.isCreation(scope.token)
-    ) {
-        scope.close();
-        parseMode.close();
-    }
-
-    return transform;
-}
-
-module.exports = parseExpressionTransform;
-
-},{"../tokens":28,"../utils":40}],16:[function(require,module,exports){
-var Token = require('../tokens'),
-    ValueToken = Token.tokens.value,
-    OpperatorToken = Token.tokens.opperator,
-    utils = require('../utils');
-
-function parseExpressionValue(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index,
-        length = code.length,
-        ch = code.codePointAt(index),
-        nextCh,
-        value,
-        style,
-        /* ~ */
-        name = ch === 0x007e,
-        /* @ */
-        at = ch === 0x0040,
-        dot,
-        devider,
-        dotdot;
-
-
-    if (!utils.isHTMLIdentifierStart(ch) &&
-        !name &&
-        !at &&
-        ch !== 0x002e /* . */
-    ) {
-        return null;
-    }
-
-    value = new ValueToken(code);
-    var path = [],
-        nameVal = '';
-
-    if (name || at) { /* @ */
-        path.push(code.charAt(index));
-        index++;
-    }
-
-    for (; index < length; index++) {
-        ch = code.codePointAt(index);
-        nextCh = code.codePointAt(index + 1);
-
-        if (utils.isHTMLIdentifier(ch)) {
-            if (!devider && (dot || dotdot)) {
-                throw code.makeError(
-                    index, index + 1,
-                    'Unexpected Token: ' +
-                    JSON.stringify(code.charAt(index)) +
-                    '.'
-                );
-            }
-
-            if (devider && !utils.isHTMLIdentifierStart(ch)) {
-                throw code.makeError(
-                    index, index + 1,
-                    'Unexpected Token: Expected <[A-Za-z]> but found ' +
-                    JSON.stringify(code.charAt(index)) +
-                    '.'
-                );
-            }
-
-            nameVal += code.charAt(index);
-
-            name = true;
-            devider = false;
-        } else if (!(name && at) && (name || dotdot || dot) && ch === 0x002f) { /* / */
-            if (style === 0 || devider) {
-                throw code.makeError(
-                    index, index + 1,
-                    'Unexpected Token: ' +
-                    JSON.stringify(code.charAt(index)) +
-                    '.'
-                );
-            }
-
-            if (nameVal) {
-                path.push(nameVal);
-                nameVal = '';
-            }
-
-            style = 1;
-            dotdot = false;
-            devider = true;
-        } else if (!name && ch === 0x002e && nextCh === 0x002e) { /* .. */
-            if (dot || style === 0) {
-                throw code.makeError(
-                    index, index + 1,
-                    'Unexpected Token: ' +
-                    JSON.stringify(code.charAt(index)) +
-                    '.'
-                );
-            }
-            index++;
-            path.push('..');
-            style = 1;
-            dotdot = true;
-            devider = false;
-        } else if (!at && ch === 0x002e) { /* . */
-            if (style === 1 || devider) {
-                throw code.makeError(
-                    index, index + 1,
-                    'Unexpected Token: ' +
-                    JSON.stringify(code.charAt(index)) +
-                    '.'
-                );
-            }
-
-            if (name) {
-                style = 0;
-                devider = true;
-
-                if (nameVal) {
-                    path.push(nameVal);
-                    nameVal = '';
-                }
-            }
-            dot = true;
-        } else {
-            break;
-        }
-    }
-
-    if (nameVal) {
-        path.push(nameVal);
-        nameVal = '';
-    }
-
-    if (index > code.index) {
-        code.index = index;
-        value.close();
-        value.path = path;
-
-        if (
-            OpperatorToken.isCreation(scope.token)
-        ) {
-            scope.close();
-            parseMode.close();
-        }
-
-        return value;
-    }
-
-    return null;
-}
-
-module.exports = parseExpressionValue;
-
-},{"../tokens":28,"../utils":40}],17:[function(require,module,exports){
-//parseHTMLAttrEnd
-
-function parseHTMLAttrEnd(mode, code, tokens, flags, scope, parseMode) {
-    if (code.codePointAt(code.index) === 0x0022 /* " */ ) {
-        code.index++;
-
-        scope.close();
-        parseMode.close();
-
-        return true;
-    }
-
-    return null;
-}
-
-module.exports = parseHTMLAttrEnd;
-
-},{}],18:[function(require,module,exports){
-// parseHTMLAttr
-var Token = require('../tokens'),
-    AttrToken = Token.tokens.attr,
-    utils = require('../utils');
-
-function parseHTMLAttr(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index,
-        length = code.length,
-        attr;
-
-    if (!utils.isHTMLIdentifierStart(code.codePointAt(index))) {
-        return null;
-    }
-
-    attr = new AttrToken(code);
-
-    for (; index < length; index++) {
-
-        if (!utils.isHTMLIdentifier(code.codePointAt(index))) {
-            break;
-        }
-
-        attr.name += code.charAt(index);
-    }
-
-    if (attr.name) {
-        /* = */
-        if (code.codePointAt(index) === 0x003d) {
-            index++;
-            /* " */
-            if (code.codePointAt(index) === 0x0022) {
-                index++;
-                code.index = index;
-
-                scope.push(attr);
-                flags.whitepaceString = true;
-                parseMode('VALUE', attr.nodes, flags);
-                delete flags.whitepaceString;
-            } else {
-                throw code.makeError(
-                    index, index + 1,
-                    'Unexpected Token: Expected "\"" but found ' +
-                    JSON.stringify(code.charAt(index))
-                );
-            }
-        } else {
-            code.index = index;
-            attr.close();
-        }
-
-        if (!attr.closed) {
-            throw code.makeError(
-                attr.range[0] + attr.name.length + 1,
-                attr.range[0] + attr.name.length + 2,
-                'Unclosed String: Expected "\"" to fallow "\""'
-            );
-        }
-
-        if (scope.token && attr.nodesUpdate) {
-            scope.token.updates('attr');
-        }
-
-        return attr;
-    }
-
-    return null;
-}
-
-module.exports = parseHTMLAttr;
-
-},{"../tokens":28,"../utils":40}],19:[function(require,module,exports){
-//parseHTMLComment
-
-function parseHTMLComment(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index,
-        length = code.length;
-
-    if ( /* <!-- */
-        code.codePointAt(index) === 0x003c &&
-        code.codePointAt(++index) === 0x0021 &&
-        code.codePointAt(++index) === 0x002d &&
-        code.codePointAt(++index) === 0x002d
-    ) {
-        index++;
-
-        for (; index < length; index++) {
-            if ( /* --> */
-                code.codePointAt(index) === 0x002d &&
-                code.codePointAt(index + 1) === 0x002d &&
-                code.codePointAt(index + 2) === 0x003e
-            ) {
-                index += 3;
-                code.index = index;
-
-                return true;
-            }
-        }
-
-        throw code.makeError(
-            code.index, code.index + 4,
-            'Unclosed Comment: Expected "-->" to fallow "<!--".'
-        );
-    }
-
-    return null;
-}
-
-module.exports = parseHTMLComment;
-
-},{}],20:[function(require,module,exports){
-// parseHTMLTagEnd
-
-function parseHTMLTagEnd(mode, code, tokens, flags, scope, parseMode) {
-    var ch = code.codePointAt(code.index);
-    /* > */
-    if (ch === 0x003e) {
-        code.index++;
-        scope.close();
-
-        parseMode.close();
-        return true;
-    } else if ( /* /> */
-        ch === 0x002f &&
-        code.codePointAt(code.index + 1) === 0x003e
-    ) {
-        code.index += 2;
-        var tag = scope.close();
-        tag.selfClosed = true;
-
-        parseMode.close();
-        return true;
-    }
-
-    return null;
-}
-
-module.exports = parseHTMLTagEnd;
-
-},{}],21:[function(require,module,exports){
-var TagToken = require('../tokens')
-    .tokens.tag,
-    utils = require('../utils');
-
-
-function parseHTMLTag(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index,
-        length = code.length,
-        tag,
-        isClosing;
-    if ( /* < */
-        code.codePointAt(index) === 0x003c
-    ) {
-        if ( /* / */
-            code.codePointAt(index + 1) === 0x002f
-        ) {
-            isClosing = true;
-            index++;
-        }
-
-        tag = new TagToken(code);
-
-        index++;
-
-        if (!utils.isHTMLIdentifierStart(code.codePointAt(index))) {
-            throw code.makeError(
-                index, index + 1,
-                'Unexpected Token: Expected <[A-Za-z]> but found ' +
-                JSON.stringify(code.charAt(index)) +
-                '.'
-            );
-        }
-
-        for (; index < length; index++) {
-            ch = code.codePointAt(index);
-
-            if (utils.isHTMLIdentifier(ch)) {
-                tag.name += code.charAt(index);
-            } else {
-                break;
-            }
-        }
-
-        code.index = index;
-
-        if (isClosing) {
-            if (ch !== 0x003e) { /* > */
-                throw code.makeError(
-                    index, index + 1,
-                    'Unexpected Token: Expected ' +
-                    JSON.stringify('>') +
-                    ' but found ' +
-                    JSON.stringify(code.charAt(index)) +
-                    '.'
-                );
-            }
-
-            index++;
-
-            code.index = index;
-            tag.close();
-
-            if (!TagToken.isCreation(scope.token)) {
-                throw code.makeError(
-                    tag.range[0], tag.range[1],
-                    'Unexpected Closing Tag: ' +
-                    JSON.stringify(tag.source(code)) +
-                    '.'
-                );
-            }
-
-            if (scope.token.name !== tag.name) {
-                throw code.makeError(
-                    tag.range[0], tag.range[1],
-                    'Mismatch Closing Tag: Expected ' +
-                    JSON.stringify('</' + scope.token.name + '>') +
-                    ' but found ' +
-                    JSON.stringify(tag.source(code)) +
-                    '.'
-                );
-            }
-
-            scope.close();
-            parseMode.close();
-
-            return true;
-        }
-
-        scope.push(tag);
-        parseMode('ATTR', tag.attrs, flags);
-
-        if (!tag.closed) {
-            throw code.makeError(
-                index, index + 1,
-                'Unclosed Tag: Expected ' +
-                JSON.stringify('>') +
-                ' but found ' +
-                JSON.stringify(code.charAt(code.index)) +
-                '.'
-            );
-        }
-
-        if (utils.isSelfClosing(tag.name)) {
-            tag.selfClosing = true;
-        }
-
-        if (tag.selfClosing || tag.selfClosed) {
-            return tag;
-        }
-
-        delete tag.closed;
-
-        if (tag.name === 'pre' || tag.name === 'style' || tag.name ===
-            'script') {
-            flags.minify = false;
-        }
-
-        scope.push(tag);
-
-        if (tag.name === 'style' || tag.name === 'script') {
-            flags.textExitTag = tag.name;
-            parseMode('TEXT', tag.nodes, flags);
-            delete flags.textExitTag;
-        } else {
-            parseMode(mode, tag.nodes, flags);
-        }
-
-        if (!tag.closed) {
-            throw code.makeError(
-                tag.range[0], tag.range[1],
-                'Unclosed Tag: Expected ' +
-                JSON.stringify('</' + tag.name + '>') +
-                ' to fallow ' +
-                JSON.stringify(tag.source(code)) +
-                '.'
-            );
-        }
-
-        if (scope.token && (tag.attrsUpdate || tag.nodesUpdate)) {
-            scope.token.updates();
-        }
-
-        return tag;
-    }
-
-    return null;
-}
-
-
-module.exports = parseHTMLTag;
-
-},{"../tokens":28,"../utils":40}],22:[function(require,module,exports){
-// text
-exports.parseText = require('./text');
-exports.parseWhitspace = require('./whitespace');
-
-// HTML markup
-exports.parseHTMLComment = require('./html-comment');
-exports.parseHTMLTag = require('./html-tag');
-exports.parseHTMLTagEnd = require('./html-tag-end');
-exports.parseHTMLAttr = require('./html-attr');
-exports.parseHTMLAttrEnd = require('./html-attr-end');
-
-// Bars markup
-exports.parseBarsMarkup = require('./bars-markup');
-exports.parseBarsComment = require('./bars-comment');
-exports.parseBarsInsert = require('./bars-insert');
-exports.parseBarsPartial = require('./bars-partial');
-exports.parseBarsBlock = require('./bars-block');
-exports.parseBarsMarkupEnd = require('./bars-markup-end');
-
-// Expression
-exports.parseExpressionValue = require('./expression-value');
-exports.parseExpressionLiteral = require('./expression-literal');
-exports.parseExpressionOpperator = require('./expression-opperator');
-exports.parseExpressionTransform = require('./expression-transform');
-exports.parseExpressionTransformEnd = require('./expression-transform-end');
-
-},{"./bars-block":6,"./bars-comment":7,"./bars-insert":8,"./bars-markup":10,"./bars-markup-end":9,"./bars-partial":11,"./expression-literal":12,"./expression-opperator":13,"./expression-transform":15,"./expression-transform-end":14,"./expression-value":16,"./html-attr":18,"./html-attr-end":17,"./html-comment":19,"./html-tag":21,"./html-tag-end":20,"./text":23,"./whitespace":24}],23:[function(require,module,exports){
-var TextToken = require('../tokens')
-    .tokens.text,
-    utils = require('../utils');
-
-function parseText(mode, code, tokens, flags, scope,
-    parseMode) {
-    var index = code.index,
-        isEntity = false,
-        entityStr = '',
-        value = '',
-        textExitTag;
-
-    if (mode === 'DOM') {
-        for (; index < code.length; index++) {
-            ch = code.codePointAt(index);
-
-            if (
-                ch === 0x003c /* < */ ||
-                ch === 0x007b /* { */ &&
-                code.codePointAt(index + 1) === 0x007b /* { */
-            ) {
-                value += entityStr;
-                break;
-            }
-
-            if (ch === 0x0026 /* & */ ) {
-                isEntity = true;
-                entityStr = code.charAt(index);
-
-                continue;
-            } else if (isEntity && ch === 0x003b /* ; */ ) {
-                entityStr += code.charAt(index);
-
-                value += utils.getHTMLUnEscape(entityStr);
-
-                isEntity = false;
-                entityStr = '';
-
-                continue;
-            }
-
-            if (isEntity && utils.isEntity(ch)) {
-                entityStr += code.charAt(index);
-            } else {
-                value += entityStr;
-                isEntity = false;
-                entityStr = '';
-
-                value += code.charAt(index);
-            }
-        }
-    } else if (flags.whitepaceString) {
-        for (; index < code.length; index++) {
-            ch = code.codePointAt(index);
-
-            /* \n */
-            if (ch === 0x000a) {
-                code.index = index;
-                return null;
-            }
-
-            if ( /* " but not \" */
-                ch === 0x0022 &&
-                code.codePointAt(index - 1) !== 0x005c
-            ) {
-                break;
-            }
-
-            if ( /* {{ */
-                ch === 0x007b &&
-                code.codePointAt(index + 1) === 0x007b
-            ) {
-                break;
-            }
-        }
-    } else {
-        for (; index < code.length; index++) {
-            if (
-                code.codePointAt(index) === 0x007b /* { */ &&
-                code.codePointAt(index + 1) === 0x007b /* { */
-            ) {
-                break;
-            } else if (
-                flags.textExitTag === 'script' &&
-                /* </script> */
-                code.codePointAt(index) === 0x003c &&
-                code.codePointAt(index + 1) === 0x002f &&
-
-                code.codePointAt(index + 2) === 0x0073 &&
-                code.codePointAt(index + 3) === 0x0063 &&
-                code.codePointAt(index + 4) === 0x0072 &&
-                code.codePointAt(index + 5) === 0x0069 &&
-                code.codePointAt(index + 6) === 0x0070 &&
-                code.codePointAt(index + 7) === 0x0074 &&
-
-                code.codePointAt(index + 8) === 0x003e
-            ) {
-                textExitTag = 9;
-                break;
-            } else if (
-                flags.textExitTag === 'style' &&
-                /* </style> */
-                code.codePointAt(index) === 0x003c &&
-                code.codePointAt(index + 1) === 0x002f &&
-
-                code.codePointAt(index + 2) === 0x0073 &&
-                code.codePointAt(index + 3) === 0x0074 &&
-                code.codePointAt(index + 4) === 0x0079 &&
-                code.codePointAt(index + 5) === 0x006c &&
-                code.codePointAt(index + 6) === 0x0065 &&
-
-                code.codePointAt(index + 7) === 0x003e
-            ) {
-                textExitTag = 8;
-                break;
-            }
-        }
-    }
-
-    if (code.index < index) {
-        var text = new TextToken(code);
-
-        code.index = index;
-
-        text.close();
-
-        if (flags.minify) {
-            text.value = utils.minifyHTMLText(value || text.source(code));
-            if (/^\s*$/.test(text.value))
-                return true;
-        } else {
-            text.value = value || text.source(code);
-        }
-
-        if (flags.textExitTag && textExitTag) {
-            code.index += textExitTag;
-            scope.close();
-            parseMode.close();
-        }
-
-        return text;
-    }
-
-    return null;
-}
-
-module.exports = parseText;
-
-},{"../tokens":28,"../utils":40}],24:[function(require,module,exports){
-// parseWhitspace
-
-var utils = require('../utils');
-
-function parseWhitspace(mode, code, tokens, flags, scope, parseMode) {
-    var index = code.index,
-        length = code.length,
-        whitespace = 0;
-
-    for (; index < length; index++) {
-        if (!utils.isWhitespace(code.codePointAt(index))) {
-            break;
-        }
-        if (
-            flags.whitepaceString &&
-            code.codePointAt(index) === 0x000a /* \n */
-        ) {
-            break;
-        }
-        whitespace++;
-    }
-
-    if (whitespace) {
-        code.index = index;
-        return true;
-    }
-
-    return null;
-}
-
-module.exports = parseWhitspace;
-
-},{"../utils":40}],25:[function(require,module,exports){
+},{"generate-js":30}],3:[function(require,module,exports){
 var Token = require('./token');
 
 var AttrToken = Token.generate(
@@ -2311,7 +212,7 @@ AttrToken.definePrototype({
 
 Token.tokens.attr = AttrToken;
 
-},{"./token":36}],26:[function(require,module,exports){
+},{"./token":14}],4:[function(require,module,exports){
 var Token = require('./token');
 
 var BlockToken = Token.generate(
@@ -2444,7 +345,7 @@ BlockToken.definePrototype({
 
 Token.tokens.block = BlockToken;
 
-},{"./token":36}],27:[function(require,module,exports){
+},{"./token":14}],5:[function(require,module,exports){
 var Token = require('./token');
 
 var FragmentToken = Token.generate(
@@ -2523,7 +424,7 @@ FragmentToken.definePrototype({
 
 Token.tokens.fragment = FragmentToken;
 
-},{"./token":36}],28:[function(require,module,exports){
+},{"./token":14}],6:[function(require,module,exports){
 var Token = require('./token');
 
 // program
@@ -2567,7 +468,7 @@ module.exports = Token;
 
 // window.prog = prog;
 
-},{"./attr":25,"./block":26,"./fragment":27,"./insert":29,"./literal":30,"./opperator":31,"./partial":32,"./program":33,"./tag":34,"./text":35,"./token":36,"./transform":37,"./value":38}],29:[function(require,module,exports){
+},{"./attr":3,"./block":4,"./fragment":5,"./insert":7,"./literal":8,"./opperator":9,"./partial":10,"./program":11,"./tag":12,"./text":13,"./token":14,"./transform":15,"./value":16}],7:[function(require,module,exports){
 var Token = require('./token');
 
 var InsertToken = Token.generate(
@@ -2629,7 +530,7 @@ InsertToken.definePrototype({
 
 Token.tokens.insert = InsertToken;
 
-},{"./token":36}],30:[function(require,module,exports){
+},{"./token":14}],8:[function(require,module,exports){
 var Token = require('./token');
 
 var LiteralToken = Token.generate(
@@ -2687,7 +588,7 @@ LiteralToken.definePrototype({
 
 Token.tokens.literal = LiteralToken;
 
-},{"./token":36}],31:[function(require,module,exports){
+},{"./token":14}],9:[function(require,module,exports){
 var Token = require('./token');
 
 var OpperatorToken = Token.generate(
@@ -2765,7 +666,7 @@ OpperatorToken.definePrototype({
 Token.tokens.opperator = OpperatorToken;
 Token;
 
-},{"./token":36}],32:[function(require,module,exports){
+},{"./token":14}],10:[function(require,module,exports){
 var Token = require('./token');
 
 var PartialToken = Token.generate(
@@ -2839,7 +740,7 @@ PartialToken.definePrototype({
 
 Token.tokens.partial = PartialToken;;
 
-},{"./token":36}],33:[function(require,module,exports){
+},{"./token":14}],11:[function(require,module,exports){
 var Token = require('./token');
 var PACKAGE_JSON = require('../../../package');
 
@@ -2917,7 +818,7 @@ ProgramToken.definePrototype({
 
 Token.tokens.program = ProgramToken;
 
-},{"../../../package":56,"./token":36}],34:[function(require,module,exports){
+},{"../../../package":31,"./token":14}],12:[function(require,module,exports){
 var Token = require('./token');
 
 var TagToken = Token.generate(
@@ -3042,7 +943,7 @@ TagToken.definePrototype({
 
 Token.tokens.tag = TagToken;
 
-},{"./token":36}],35:[function(require,module,exports){
+},{"./token":14}],13:[function(require,module,exports){
 var Token = require('./token');
 
 var TextToken = Token.generate(
@@ -3101,7 +1002,7 @@ TextToken.definePrototype({
 
 Token.tokens.text = TextToken;
 
-},{"./token":36}],36:[function(require,module,exports){
+},{"./token":14}],14:[function(require,module,exports){
 var Token = require('compileit')
     .Token;
 
@@ -3160,7 +1061,7 @@ BarsToken.definePrototype({
 
 module.exports = BarsToken;
 
-},{"compileit":49}],37:[function(require,module,exports){
+},{"compileit":24}],15:[function(require,module,exports){
 var Token = require('./token');
 
 var TransformToken = Token.generate(
@@ -3240,7 +1141,7 @@ TransformToken.definePrototype({
 
 Token.tokens.transform = TransformToken;
 
-},{"./token":36}],38:[function(require,module,exports){
+},{"./token":14}],16:[function(require,module,exports){
 var Token = require('./token');
 
 var ValueToken = Token.generate(
@@ -3308,248 +1209,7 @@ ValueToken.definePrototype({
 
 Token.tokens.value = ValueToken;
 
-},{"./token":36}],39:[function(require,module,exports){
-module.exports={
-    "quot":      34,
-    "amp":       38,
-    "lt":        60,
-    "gt":        62,
-    "nbsp":      160,
-    "iexcl":     161,
-    "cent":      162,
-    "pound":     163,
-    "curren":    164,
-    "yen":       165,
-    "brvbar":    166,
-    "sect":      167,
-    "uml":       168,
-    "copy":      169,
-    "ordf":      170,
-    "not":       172,
-    "shy":       173,
-    "reg":       174,
-    "macr":      175,
-    "deg":       176,
-    "plusmn":    177,
-    "sup2":      178,
-    "sup3":      179,
-    "acute":     180,
-    "micro":     181,
-    "para":      182,
-    "middot":    183,
-    "cedil":     184,
-    "sup1":      185,
-    "ordm":      186,
-    "raquo":     187,
-    "frac14":    188,
-    "frac12":    189,
-    "frac34":    190,
-    "iquest":    191,
-    "Agrave":    192,
-    "Aacute":    193,
-    "Acirc":     194,
-    "Atilde":    195,
-    "Auml":      196,
-    "Aring":     197,
-    "AElig":     198,
-    "Ccedil":    199,
-    "Egrave":    200,
-    "Eacute":    201,
-    "Ecirc":     202,
-    "Euml":      203,
-    "Igrave":    204,
-    "Iacute":    205,
-    "Icirc":     206,
-    "Iuml":      207,
-    "ETH":       208,
-    "Ntilde":    209,
-    "Ograve":    210,
-    "Oacute":    211,
-    "Ocirc":     212,
-    "Otilde":    213,
-    "Ouml":      214,
-    "times":     215,
-    "Oslash":    216,
-    "Ugrave":    217,
-    "Uacute":    218,
-    "Ucirc":     219,
-    "Uuml":      220,
-    "Yacute":    221,
-    "THORN":     222,
-    "szlig":     223,
-    "agrave":    224,
-    "aacute":    225,
-    "acirc":     226,
-    "atilde":    227,
-    "auml":      228,
-    "aring":     229,
-    "aelig":     230,
-    "ccedil":    231,
-    "egrave":    232,
-    "eacute":    233,
-    "ecirc":     234,
-    "euml":      235,
-    "igrave":    236,
-    "iacute":    237,
-    "icirc":     238,
-    "iuml":      239,
-    "eth":       240,
-    "ntilde":    241,
-    "ograve":    242,
-    "oacute":    243,
-    "ocirc":     244,
-    "otilde":    245,
-    "ouml":      246,
-    "divide":    247,
-    "oslash":    248,
-    "ugrave":    249,
-    "uacute":    250,
-    "ucirc":     251,
-    "uuml":      252,
-    "yacute":    253,
-    "thorn":     254,
-    "euro":      8364
-}
-
-},{}],40:[function(require,module,exports){
-var SELF_CLOSEING_TAGS = require('./self-closing-tags');
-var ENTITIES = require('./html-entities');
-
-function pathSpliter(path) {
-    var splitPath;
-
-    if (path instanceof Array) {
-        splitPath = path;
-    } else if (typeof path === 'string') {
-        if (path.match(/[/]|[.][.]/)) {
-            splitPath = path.split('/');
-        } else {
-            splitPath = path.split('.');
-        }
-
-        if (!splitPath[0] && !splitPath[1]) {
-            splitPath = ['.'];
-        }
-
-        var barsProp = splitPath.pop()
-            .split('@');
-        if (barsProp[0]) {
-            splitPath.push(barsProp[0]);
-        }
-        if (barsProp[1]) {
-            splitPath.push('@' + barsProp[1]);
-        }
-    } else {
-        throw 'bad arrgument: expected String | Array<String>.';
-    }
-
-    return splitPath;
-}
-exports.pathSpliter = pathSpliter;
-
-function isSelfClosing(name) {
-    return SELF_CLOSEING_TAGS.indexOf(name) !== -1;
-}
-exports.isSelfClosing = isSelfClosing;
-
-function isHTMLIdentifierStart(ch) {
-    return (0x0041 <= ch && ch <= 0x005a) ||
-        (0x0061 <= ch && ch <= 0x007a);
-}
-exports.isHTMLIdentifierStart = isHTMLIdentifierStart;
-
-function isHTMLEntity(ch) {
-    /* ^[0-9A-Za-z]$ */
-    return (0x0030 <= ch && ch <= 0x0039) ||
-        (0x0041 <= ch && ch <= 0x005a) ||
-        (0x0061 <= ch && ch <= 0x007a);
-}
-exports.isHTMLEntity = isHTMLEntity;
-
-function isHTMLIdentifier(ch) {
-    /* ^[0-9A-Z_a-z-]$ */
-    return ch === 0x002d ||
-        (0x0030 <= ch && ch <= 0x0039) ||
-        (0x0041 <= ch && ch <= 0x005a) ||
-        ch === 0x005f ||
-        (0x0061 <= ch && ch <= 0x007a);
-}
-exports.isHTMLIdentifier = isHTMLIdentifier;
-
-
-160
-
-function isWhitespace(ch) {
-    /* ^\s$ */
-    return (0x0009 <= ch && ch <= 0x000d) ||
-        ch === 0x0020 ||
-        ch === 0x00a0 || /* nbsp */
-        ch === 0x1680 ||
-        ch === 0x180e ||
-        (0x2000 <= ch && ch <= 0x200a) ||
-        (0x2028 <= ch && ch <= 0x2029) ||
-        ch === 0x202f ||
-        ch === 0x205f ||
-        ch === 0x3000 ||
-        ch === 0xfeff;
-}
-exports.isWhitespace = isWhitespace;
-
-function minifyHTMLText(text) {
-    return text.replace(/(\s*)/g, function ($1) {
-        return $1.split('')
-            .sort(function (a, b) {
-                a = a.codePointAt(0);
-                b = b.codePointAt(0);
-                if (a !== 0x00a0 && b === 0x00a0) return 1;
-                if (a === 0x00a0 && b !== 0x00a0) return -1;
-                return 0;
-            })
-            .join('')
-            .replace(/[^\u00a0]+/, ' ');
-    });
-}
-exports.minifyHTMLText = minifyHTMLText;
-
-function getHTMLUnEscape(str) {
-    var code;
-
-    code = ENTITIES[str.slice(1, -1)];
-
-    if (typeof code !== 'number' && str[1] === '#') {
-        code = parseInt(str.slice(2, -1), 0x000a);
-    }
-
-    if (typeof code === 'number' && !isNaN(code)) {
-        return String.fromCharCode(code);
-    }
-
-    return str;
-}
-
-exports.getHTMLUnEscape = getHTMLUnEscape;
-
-},{"./html-entities":39,"./self-closing-tags":41}],41:[function(require,module,exports){
-module.exports=[
-    "area",
-    "base",
-    "br",
-    "col",
-    "command",
-    "embed",
-    "hr",
-    "img",
-    "input",
-    "keygen",
-    "link",
-    "meta",
-    "param",
-    "source",
-    "track",
-    "wbr"
-]
-
-},{}],42:[function(require,module,exports){
+},{"./token":14}],17:[function(require,module,exports){
 var Generator = require('generate-js'),
     execute = require('./runtime/execute'),
     utils = require('./runtime/utils'),
@@ -4025,7 +1685,7 @@ Nodes.FRAG.definePrototype({
 
 module.exports = Nodes.FRAG;
 
-},{"./runtime/context":44,"./runtime/execute":45,"./runtime/utils":47,"generate-js":55}],43:[function(require,module,exports){
+},{"./runtime/context":19,"./runtime/execute":20,"./runtime/utils":22,"generate-js":30}],18:[function(require,module,exports){
 var Generator = require('generate-js'),
     Frag = require('./frag');
 
@@ -4047,7 +1707,7 @@ Renderer.definePrototype({
 
 module.exports = Renderer;
 
-},{"./frag":42,"generate-js":55}],44:[function(require,module,exports){
+},{"./frag":17,"generate-js":30}],19:[function(require,module,exports){
 var Generator = require('generate-js');
 var utils = require('./utils');
 var pathSpliter = utils.pathSpliter;
@@ -4094,22 +1754,6 @@ Context.definePrototype({
 
             if (path[0] === '~' && fragment.fragment) {
 
-<<<<<<< HEAD
-    var ch,
-        token = {
-            type: 'HTML',
-            args: ''
-        }, endChars = 0;
-
-    // move past {{{
-    index += 3;
-    loop: for (; index < length; index++) {
-        ch = buffer.codePointAt(index);
-
-        if (ch === 125 /*'}'*/) {
-            endChars++;
-            index++;
-=======
                 while (fragment.fragment) {
                     fragment = fragment.fragment;
                 }
@@ -4120,7 +1764,6 @@ Context.definePrototype({
                 .fragment
                 .fragment) {
                 _.context = fragment.fragment.context;
->>>>>>> Mike96Angelo/master
 
                 while (path[0] === '..' && _.context.context) {
 
@@ -4145,19 +1788,9 @@ Context.definePrototype({
             _.context = _.fragment.fragment.context;
         }
 
-<<<<<<< HEAD
-    var ch,
-        token = {
-            type: 'PARTIAL',
-            name: '',
-            args: {}
-        }, endChars = 0,
-        args = '';
-=======
         if (path[0] === '~' && _.context) {
             return _.context.lookup(path);
         }
->>>>>>> Mike96Angelo/master
 
         if (path[0] === '..' && _.context) {
             return _.context.lookup(
@@ -4195,34 +1828,13 @@ Context.definePrototype({
         }
         // console.log('lookup:', value)
 
-<<<<<<< HEAD
-        args += buffer[index];
-=======
         return value;
->>>>>>> Mike96Angelo/master
     }
 });
 
-<<<<<<< HEAD
-    args = args.trim().split(/\s+/);
-
-    for (var i = args.length - 1; i >= 0; i--) {
-        var arg = args[i].split('=')
-        token.args[arg[0]] = arg[1];
-    }
-
-    tree.push(token);
-
-    return index;
-}
-
-function parseBarsHelper(mode, tree, index, length, buffer, indent) {
-    if (buffer.codePointAt(index + 1) !== 123 /*'{'*/) {
-        return null;
-=======
 module.exports = Context;
 
-},{"./utils":47,"generate-js":55}],45:[function(require,module,exports){
+},{"./utils":22,"generate-js":30}],20:[function(require,module,exports){
 var logic = require('./logic');
 
 function execute(syntaxTree, transforms, context) {
@@ -4273,7 +1885,6 @@ function execute(syntaxTree, transforms, context) {
         }
         // console.log('<<<<', result)
         return result;
->>>>>>> Mike96Angelo/master
     }
 
     if (syntaxTree) {
@@ -4285,7 +1896,7 @@ function execute(syntaxTree, transforms, context) {
 
 module.exports = execute;
 
-},{"./logic":46}],46:[function(require,module,exports){
+},{"./logic":21}],21:[function(require,module,exports){
 /* Arithmetic */
 exports.add      = function add      (a, b) { return a + b; };
 exports.subtract = function subtract (a, b) { return a - b; };
@@ -4335,7 +1946,7 @@ exports.gt = function gt (a, b) { return a > b; };
 exports['<'] = exports.lt;
 exports['>'] = exports.gt;
 
-},{}],47:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 exports.pathResolver = function pathResolver(base, path) {
     base = base.slice();
     path = path.slice();
@@ -4401,7 +2012,7 @@ function findPath(arg) {
 
 exports.findPath = findPath;
 
-},{}],48:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var Generator = require('generate-js');
 
 var Transfrom = Generator.generate(function Transfrom() {});
@@ -4486,11 +2097,11 @@ Transfrom.definePrototype({
 
 module.exports = Transfrom;
 
-},{"generate-js":55}],49:[function(require,module,exports){
+},{"generate-js":30}],24:[function(require,module,exports){
 exports.Compiler = require('./lib/compiler');
 exports.Token = require('./lib/token');
 
-},{"./lib/compiler":51,"./lib/token":53}],50:[function(require,module,exports){
+},{"./lib/compiler":26,"./lib/token":28}],25:[function(require,module,exports){
 var Generator = require('generate-js'),
     utils = require('./utils');
 
@@ -4672,7 +2283,7 @@ CodeBuffer.definePrototype({
 
 module.exports = CodeBuffer;
 
-},{"./utils":54,"generate-js":55}],51:[function(require,module,exports){
+},{"./utils":29,"generate-js":30}],26:[function(require,module,exports){
 var Generator = require('generate-js'),
     Scope = require('./scope'),
     Token = require('./token'),
@@ -4824,7 +2435,7 @@ Compiler.definePrototype({
 
 module.exports = Compiler;
 
-},{"./code-buffer":50,"./scope":52,"./token":53,"./utils":54,"generate-js":55}],52:[function(require,module,exports){
+},{"./code-buffer":25,"./scope":27,"./token":28,"./utils":29,"generate-js":30}],27:[function(require,module,exports){
 var Generator = require('generate-js'),
     Token = require('./token'),
     utils = require('./utils');
@@ -4909,7 +2520,7 @@ Scope.definePrototype({
 
 module.exports = Scope;
 
-},{"./token":53,"./utils":54,"generate-js":55}],53:[function(require,module,exports){
+},{"./token":28,"./utils":29,"generate-js":30}],28:[function(require,module,exports){
 var Generator = require('generate-js'),
     utils = require('./utils');
 
@@ -4974,7 +2585,7 @@ Token.definePrototype({
 
 module.exports = Token;
 
-},{"./utils":54,"generate-js":55}],54:[function(require,module,exports){
+},{"./utils":29,"generate-js":30}],29:[function(require,module,exports){
 /**
  * Assert Error function.
  * @param  {Boolean} condition Whether or not to throw error.
@@ -5051,7 +2662,7 @@ function bufferSlice(code, range, format) {
 }
 exports.bufferSlice = bufferSlice;
 
-},{}],55:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /**
  * @name generate.js
  * @author Michaelangelo Jong
@@ -5413,7 +3024,7 @@ exports.bufferSlice = bufferSlice;
 
 }());
 
-},{}],56:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 module.exports={
   "name": "bars",
   "version": "0.4.0",
@@ -5453,5 +3064,4 @@ module.exports={
   }
 }
 
-},{}]},{},[2])(2)
-});
+},{}]},{},[1]);
