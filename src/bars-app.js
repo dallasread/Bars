@@ -4098,7 +4098,8 @@ exports.isSelfClosing = isSelfClosing;
 
 function isHTMLIdentifierStart(ch) {
     return (0x0041 <= ch && ch <= 0x005a) ||
-        (0x0061 <= ch && ch <= 0x007a);
+        (0x0061 <= ch && ch <= 0x007a) ||
+        ch === 0x005f;
 }
 exports.isHTMLIdentifierStart = isHTMLIdentifierStart;
 
@@ -4106,7 +4107,8 @@ function isHTMLEntity(ch) {
     /* ^[0-9A-Za-z]$ */
     return (0x0030 <= ch && ch <= 0x0039) ||
         (0x0041 <= ch && ch <= 0x005a) ||
-        (0x0061 <= ch && ch <= 0x007a);
+        (0x0061 <= ch && ch <= 0x007a) ||
+        ch === 0x005f;
 }
 exports.isHTMLEntity = isHTMLEntity;
 
@@ -4115,8 +4117,8 @@ function isHTMLIdentifier(ch) {
     return ch === 0x002d ||
         (0x0030 <= ch && ch <= 0x0039) ||
         (0x0041 <= ch && ch <= 0x005a) ||
-        ch === 0x005f ||
-        (0x0061 <= ch && ch <= 0x007a);
+        (0x0061 <= ch && ch <= 0x007a) ||
+        ch === 0x005f;
 }
 exports.isHTMLIdentifier = isHTMLIdentifier;
 
@@ -4657,33 +4659,35 @@ var COMPONENT_CACHE = {};
 function renderComponent(bars, struct, context) {
     var name = struct.name;
 
-
-    if (typeof struct.name === 'object') {
-        name = execute(struct.name, bars.transforms, context);
-    }
-
-    var ComponentConstructor = bars.components[name];
-
-    if (!ComponentConstructor) {
-        throw 'Bars Error: Missing Component: ' + name;
+    if (typeof name === 'object') {
+        name = execute(name, bars.transforms, context);
     }
 
     var newContext = context;
 
     newContext = newContext.contextWithVars(makeVars(context, struct.map, bars));
-    struct.componentId = struct.componentId || Date.now() + Math.random();
+    struct.componentId = struct.componentId || (Date.now() + Math.random());
 
-    var component = COMPONENT_CACHE[name + '-' + struct.componentId];
+    var id = name + '-' + struct.componentId,
+        component = COMPONENT_CACHE[id];
 
     if (component) {
         component.update(newContext.vars);
     } else {
-        component = new ComponentConstructor(newContext.vars);
+        var ComponentConstructor = bars.components[name];
+
+        if (!ComponentConstructor) {
+            throw 'Bars Error: Missing Component: ' + name;
+        }
+
+        component = new ComponentConstructor(newContext.vars || {});
         component.type = 'Widget';
         component.init = component.init || defaultComponentInit;
         component.destroy = component.destroy || emptyFunc;
         component.update = component.update || emptyFunc;
-        COMPONENT_CACHE[struct.componentId] = component;
+        component.update(newContext.vars);
+
+        COMPONENT_CACHE[id] = component;
     }
 
     return component;

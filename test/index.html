@@ -428,6 +428,16 @@
       renderer.update({ use: 'b-component', name: 'Dallas' });
     }, 'B:Dallas');
 
+    test('Bars Insert - Remove items from an array', function() {
+      var template = '{{#each items}}<input value::{{this}}>{{/each}}';
+      var items = [0, 1, 2];
+      renderer = bars.compile(template);
+      renderer.appendTo(barsOut);
+      renderer.update({ items: items });
+      items.splice(-1, 1);
+      renderer.update({ items: items });
+    }, '8');
+
   </script>
 </body>
 
